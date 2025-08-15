@@ -11,7 +11,7 @@ import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
 // Change this URL to wherever your FastAPI backend is running
-const BACKEND_URL = "http://107.174.218.125:8000/ask";
+const BACKEND_URL = "https://www.englishcorner.cyou/api/chat";
 
 function App() {
   const [messages, setMessages] = useState([
@@ -44,7 +44,10 @@ function App() {
       const response = await fetch(BACKEND_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: messageText }),
+        body: JSON.stringify({ 
+          question: messageText,
+          session_id: "user_session_" + Date.now() // Optional: add session management
+        }),
       });
 
       if (!response.ok) {
