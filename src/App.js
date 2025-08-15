@@ -8,6 +8,7 @@ import {
   TypingIndicator,
 } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 // Change this URL to wherever your FastAPI backend is running
 const BACKEND_URL = "http://107.174.218.125:8000/ask";
