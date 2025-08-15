@@ -16,7 +16,7 @@ const BACKEND_URL = "http://107.174.218.125:8000/ask";
 function App() {
   const [messages, setMessages] = useState([
     {
-      message: "Hi! Ask me anything about the Forever English Corner.",
+      message: "Hi! Ask me anything about Forever English Corner.",
       sender: "bot",
       direction: "incoming",
       id: 0,
