@@ -1,0 +1,13 @@
+{
+  "name": "english-corner-ai-staging",
+  "alias": ["english-corner-staging.vercel.app"],
+  "env": {
+    "NODE_ENV": "staging",
+    "REACT_APP_ENV": "staging"
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "staging"
+    }
+  }
+}

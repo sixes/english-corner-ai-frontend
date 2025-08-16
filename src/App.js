@@ -17,7 +17,14 @@ import ContentHeader from './components/ContentHeader';
 import BlogContent from './components/BlogContent';
 
 // Change from HTTP to HTTPS on custom port
-const BACKEND_URL = "https://api.englishcorner.cyou:8443/chat";
+const BACKEND_URL = process.env.NODE_ENV === 'production' 
+  ? "https://api.englishcorner.cyou:8443/chat"
+  : "https://api.englishcorner.cyou:8443/chat"; // Same for staging, but you could use a different staging API
+
+// Environment detection for testing
+const isProduction = process.env.NODE_ENV === 'production' && !window.location.hostname.includes('preview');
+const isStaging = process.env.NODE_ENV === 'production' && window.location.hostname.includes('preview');
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 // Generate a unique session ID based on device characteristics and timestamp
 function generateSessionId() {
@@ -92,7 +99,9 @@ function App() {
       page: 'main_chat',
       session_id: sessionId.current,
       user_agent: navigator.userAgent,
-      referrer: document.referrer || 'direct'
+      referrer: document.referrer || 'direct',
+      environment: isProduction ? 'production' : isStaging ? 'staging' : 'development',
+      hostname: window.location.hostname
     });
     
     // Load chat history for this session
@@ -293,6 +302,23 @@ function generateDeviceFingerprint() {
     <HelmetProvider>
       <SEOHead />
       <div style={{ position: "relative", minHeight: "100vh", width: "100%" }}>
+        {/* Staging Environment Indicator */}
+        {isStaging && (
+          <div style={{
+            background: 'linear-gradient(90deg, #ff6b6b, #feca57)',
+            color: 'white',
+            padding: '8px',
+            textAlign: 'center',
+            fontWeight: 'bold',
+            position: 'sticky',
+            top: 0,
+            zIndex: 1000,
+            fontSize: '0.9rem'
+          }}>
+            🚧 STAGING ENVIRONMENT - Testing SEO Improvements 🚧
+          </div>
+        )}
+        
         <ContentHeader />
         <div style={{ height: "70vh", padding: "0 20px 20px 20px" }}>
           <MainContainer responsive>
