@@ -1,0 +1,74 @@
+.chat-widget {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.chat-bubble {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 24px rgba(118,75,162,0.28);
+  cursor: pointer;
+}
+
+.chat-bubble:hover {
+  transform: translateY(-3px);
+}
+
+.chat-label {
+  background: rgba(255,255,255,0.95);
+  padding: 8px 12px;
+  border-radius: 16px;
+  font-weight: 600;
+  color: #222;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+  white-space: nowrap;
+  display: none; /* hidden by default, visible on wider screens */
+}
+
+@media (min-width: 720px) {
+  .chat-label {
+    display: block;
+  }
+}
+
+@media (max-width: 520px) {
+  .chat-widget {
+    bottom: 14px;
+    right: 14px;
+  }
+  .chat-bubble {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
+  }
+  .chat-label { display: none; }
+}
+
+/* Placement when the widget is used inside the chat container above the input row */
+.chat-widget.above-input {
+  position: absolute;
+  bottom: 78px; /* sits above the input area (adjust if input height changes) */
+  right: 20px;
+  z-index: 900;
+}
+
+.chat-widget.above-input .chat-bubble {
+  width: 46px;
+  height: 46px;
+}
+
+.chat-widget.above-input .chat-label { display: none; }

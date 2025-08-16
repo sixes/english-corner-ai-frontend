@@ -50,6 +50,57 @@
   font-size: 1.2rem;
 }
 
+/* Concise Header Styles */
+.content-header-concise {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 0 0 15px 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.hero-section-concise {
+  text-align: center;
+}
+
+.hero-section-concise h1 {
+  font-size: 1.8rem;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.hero-subtitle-concise {
+  font-size: 1rem;
+  margin: 0 0 15px 0;
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+.quick-info-concise {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.info-item-concise {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.15);
+  padding: 8px 12px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.info-item-concise .icon {
+  margin-right: 6px;
+  font-size: 1rem;
+}
+
 .expandable-content {
   border-top: 1px solid rgba(255,255,255,0.2);
   padding-top: 20px;
