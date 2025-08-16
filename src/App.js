@@ -10,8 +10,8 @@ import {
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
-// Change this URL to wherever your FastAPI backend is running
-const BACKEND_URL = "https://www.englishcorner.cyou/api/chat";
+// Change from HTTP to HTTPS on custom port
+const BACKEND_URL = "https://api.englishcorner.cyou:8443/chat";
 
 function App() {
   const [messages, setMessages] = useState([
