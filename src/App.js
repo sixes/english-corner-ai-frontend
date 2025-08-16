@@ -44,18 +44,11 @@ function generateSessionId() {
 }
 
 function App() {
-  const [messages, setMessages] = useState([
-    {
-      message: "Hi! Ask me anything about Forever English Corner.",
-      sender: "bot",
-      direction: "incoming",
-      id: 0,
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const sessionId = useRef(null);
 
-  // Initialize session ID once when component mounts
+  // Initialize session ID and load chat history once when component mounts
   useEffect(() => {
     // Check if we already have a session ID in localStorage (persists across browser sessions)
     let storedSessionId = localStorage.getItem('english_corner_session_id');
@@ -69,11 +62,67 @@ function App() {
       storedSessionId = generateSessionId();
       localStorage.setItem('english_corner_session_id', storedSessionId);
       localStorage.setItem('english_corner_device_fingerprint', currentDeviceFingerprint);
+      
+      // Clear old chat history for new session/device
+      localStorage.removeItem('english_corner_chat_history');
     }
     
     sessionId.current = storedSessionId;
     console.log('Session ID initialized:', sessionId.current);
+    
+    // Load chat history for this session
+    loadChatHistory();
   }, []);
+
+  // Load chat history from localStorage
+  const loadChatHistory = () => {
+    try {
+      const storedMessages = localStorage.getItem('english_corner_chat_history');
+      if (storedMessages) {
+        const parsedMessages = JSON.parse(storedMessages);
+        setMessages(parsedMessages);
+        console.log('Chat history loaded:', parsedMessages.length, 'messages');
+      } else {
+        // Set initial welcome message if no history
+        const welcomeMessage = {
+          message: "Hi! Ask me anything about Forever English Corner.",
+          sender: "bot",
+          direction: "incoming",
+          id: 0,
+        };
+        setMessages([welcomeMessage]);
+        saveChatHistory([welcomeMessage]);
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+      // Fallback to default welcome message
+      const welcomeMessage = {
+        message: "Hi! Ask me anything about Forever English Corner.",
+        sender: "bot",
+        direction: "incoming",
+        id: 0,
+      };
+      setMessages([welcomeMessage]);
+    }
+  };
+
+  // Save chat history to localStorage
+  const saveChatHistory = (messagesToSave) => {
+    try {
+      // Limit history to last 100 messages to prevent localStorage from getting too large
+      const limitedMessages = messagesToSave.slice(-100);
+      localStorage.setItem('english_corner_chat_history', JSON.stringify(limitedMessages));
+    } catch (error) {
+      console.error('Error saving chat history:', error);
+      // If localStorage is full, try to clear some space and save limited history
+      try {
+        const limitedMessages = messagesToSave.slice(-50); // Even more limited
+        localStorage.setItem('english_corner_chat_history', JSON.stringify(limitedMessages));
+      } catch (fallbackError) {
+        console.error('Failed to save even limited chat history:', fallbackError);
+      }
+    }
+  };
 
 // Generate device fingerprint for comparison (without timestamp)
 function generateDeviceFingerprint() {
@@ -106,7 +155,10 @@ function generateDeviceFingerprint() {
       direction: "outgoing",
       id: messages.length,
     };
-    setMessages((prev) => [...prev, userMessage]);
+    
+    const updatedMessagesWithUser = [...messages, userMessage];
+    setMessages(updatedMessagesWithUser);
+    saveChatHistory(updatedMessagesWithUser);
 
     setIsTyping(true);
 
@@ -152,10 +204,12 @@ function generateDeviceFingerprint() {
         message: answerMsg,
         sender: "bot",
         direction: "incoming",
-        id: messages.length + 1,
+        id: updatedMessagesWithUser.length,
       };
 
-      setMessages((prev) => [...prev, botMessage]);
+      const finalMessages = [...updatedMessagesWithUser, botMessage];
+      setMessages(finalMessages);
+      saveChatHistory(finalMessages);
     } catch (error) {
       console.error("Error fetching answer:", error);
 
@@ -164,9 +218,12 @@ function generateDeviceFingerprint() {
         message: `Oops! Something went wrong.\n${error.message}`,
         sender: "bot",
         direction: "incoming",
-        id: messages.length + 1,
+        id: updatedMessagesWithUser.length,
       };
-      setMessages((prev) => [...prev, errorMessage]);
+      
+      const finalMessages = [...updatedMessagesWithUser, errorMessage];
+      setMessages(finalMessages);
+      saveChatHistory(finalMessages);
     } finally {
       setIsTyping(false);
     }
