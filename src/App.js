@@ -20,9 +20,25 @@ function generateSessionId() {
   const screenInfo = `${window.screen.width}x${window.screen.height}`;
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const language = navigator.language;
+  const platform = navigator.platform;
+  const cookieEnabled = navigator.cookieEnabled;
+  const onlineStatus = navigator.onLine;
   
-  // Create a hash-like string from device characteristics
-  const deviceFingerprint = btoa(`${userAgent}-${screenInfo}-${timezone}-${language}`).slice(0, 10);
+  // Add more device characteristics for better uniqueness
+  const deviceCharacteristics = [
+    userAgent,
+    screenInfo,
+    timezone,
+    language,
+    platform,
+    cookieEnabled,
+    onlineStatus,
+    window.screen.colorDepth,
+    window.screen.pixelDepth,
+  ].join('-');
+  
+  // Create a more robust hash-like string from device characteristics
+  const deviceFingerprint = btoa(deviceCharacteristics).replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
   
   return `session_${deviceFingerprint}_${timestamp}`;
 }
@@ -41,18 +57,44 @@ function App() {
 
   // Initialize session ID once when component mounts
   useEffect(() => {
-    // Check if we already have a session ID in sessionStorage (persists during browser session)
-    let storedSessionId = sessionStorage.getItem('english_corner_session_id');
+    // Check if we already have a session ID in localStorage (persists across browser sessions)
+    let storedSessionId = localStorage.getItem('english_corner_session_id');
     
-    if (!storedSessionId) {
-      // Generate new session ID and store it
+    // Also check if we have a device fingerprint to see if this is the same device
+    const currentDeviceFingerprint = generateDeviceFingerprint();
+    const storedDeviceFingerprint = localStorage.getItem('english_corner_device_fingerprint');
+    
+    // If no stored session or device fingerprint changed (different device), generate new session
+    if (!storedSessionId || storedDeviceFingerprint !== currentDeviceFingerprint) {
       storedSessionId = generateSessionId();
-      sessionStorage.setItem('english_corner_session_id', storedSessionId);
+      localStorage.setItem('english_corner_session_id', storedSessionId);
+      localStorage.setItem('english_corner_device_fingerprint', currentDeviceFingerprint);
     }
     
     sessionId.current = storedSessionId;
     console.log('Session ID initialized:', sessionId.current);
   }, []);
+
+// Generate device fingerprint for comparison (without timestamp)
+function generateDeviceFingerprint() {
+  const userAgent = navigator.userAgent;
+  const screenInfo = `${window.screen.width}x${window.screen.height}`;
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const language = navigator.language;
+  const platform = navigator.platform;
+  
+  const deviceCharacteristics = [
+    userAgent,
+    screenInfo,
+    timezone,
+    language,
+    platform,
+    window.screen.colorDepth,
+    window.screen.pixelDepth,
+  ].join('-');
+  
+  return btoa(deviceCharacteristics).replace(/[^a-zA-Z0-9]/g, '').slice(0, 16);
+}
 
   async function handleSend(messageText) {
     if (!messageText.trim()) return;
