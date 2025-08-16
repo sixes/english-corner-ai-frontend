@@ -8,7 +8,9 @@ import {
   TypingIndicator,
 } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
-import { SpeedInsights } from "@vercel/speed-insights/react"
+import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
+import { track } from "@vercel/analytics";
 
 // Change from HTTP to HTTPS on custom port
 const BACKEND_URL = "https://api.englishcorner.cyou:8443/chat";
@@ -65,6 +67,17 @@ function App() {
       
       // Clear old chat history for new session/device
       localStorage.removeItem('english_corner_chat_history');
+      
+      // Track new session creation
+      track('new_session_created', {
+        session_id: storedSessionId,
+        device_changed: storedDeviceFingerprint !== currentDeviceFingerprint
+      });
+    } else {
+      // Track returning session
+      track('session_resumed', {
+        session_id: storedSessionId
+      });
     }
     
     sessionId.current = storedSessionId;
@@ -148,6 +161,13 @@ function generateDeviceFingerprint() {
   async function handleSend(messageText) {
     if (!messageText.trim()) return;
 
+    // Track chat interaction start
+    const startTime = performance.now();
+    track('chat_message_sent', {
+      message_length: messageText.length,
+      session_id: sessionId.current
+    });
+
     // Add user's message to chat
     const userMessage = {
       message: messageText,
@@ -184,6 +204,14 @@ function generateDeviceFingerprint() {
           console.error("Failed to read backend error text:", e);
           errorText = "Could not read error details";
         }
+        
+        // Track error
+        track('chat_error', {
+          error_status: response.status,
+          error_text: errorText,
+          session_id: sessionId.current
+        });
+        
         throw new Error(`Backend error ${response.status}: ${errorText}`);
       }
 
@@ -194,10 +222,23 @@ function generateDeviceFingerprint() {
         console.log("Backend response data:", data);
       } catch (jsonErr) {
         console.error("Failed to parse JSON from backend:", jsonErr);
+        track('chat_error', {
+          error_type: 'json_parse_error',
+          session_id: sessionId.current
+        });
         throw new Error("Invalid JSON response from backend");
       }
 
       const answerMsg = data.answer || "Sorry, I couldn't find an answer.";
+      const responseTime = performance.now() - startTime;
+
+      // Track successful chat completion
+      track('chat_response_received', {
+        response_time_ms: Math.round(responseTime),
+        response_length: answerMsg.length,
+        session_id: sessionId.current,
+        sources_used: data.sources_used ? data.sources_used.length : 0
+      });
 
       // Add AI assistant's answer to chat
       const botMessage = {
@@ -212,6 +253,13 @@ function generateDeviceFingerprint() {
       saveChatHistory(finalMessages);
     } catch (error) {
       console.error("Error fetching answer:", error);
+      
+      const responseTime = performance.now() - startTime;
+      track('chat_error', {
+        error_message: error.message,
+        response_time_ms: Math.round(responseTime),
+        session_id: sessionId.current
+      });
 
       // Show detailed error messages in chat for debugging
       const errorMessage = {
@@ -243,6 +291,8 @@ function generateDeviceFingerprint() {
           <MessageInput placeholder="Type your question here..." onSend={handleSend} />
         </ChatContainer>
       </MainContainer>
+      <SpeedInsights />
+      <Analytics />
     </div>
   );
 }
