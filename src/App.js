@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   MainContainer,
   ChatContainer,
@@ -13,6 +13,20 @@ import { SpeedInsights } from "@vercel/speed-insights/react"
 // Change from HTTP to HTTPS on custom port
 const BACKEND_URL = "https://api.englishcorner.cyou:8443/chat";
 
+// Generate a unique session ID based on device characteristics and timestamp
+function generateSessionId() {
+  const timestamp = Date.now();
+  const userAgent = navigator.userAgent;
+  const screenInfo = `${screen.width}x${screen.height}`;
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const language = navigator.language;
+  
+  // Create a hash-like string from device characteristics
+  const deviceFingerprint = btoa(`${userAgent}-${screenInfo}-${timezone}-${language}`).slice(0, 10);
+  
+  return `session_${deviceFingerprint}_${timestamp}`;
+}
+
 function App() {
   const [messages, setMessages] = useState([
     {
@@ -23,6 +37,22 @@ function App() {
     },
   ]);
   const [isTyping, setIsTyping] = useState(false);
+  const sessionId = useRef(null);
+
+  // Initialize session ID once when component mounts
+  useEffect(() => {
+    // Check if we already have a session ID in sessionStorage (persists during browser session)
+    let storedSessionId = sessionStorage.getItem('english_corner_session_id');
+    
+    if (!storedSessionId) {
+      // Generate new session ID and store it
+      storedSessionId = generateSessionId();
+      sessionStorage.setItem('english_corner_session_id', storedSessionId);
+    }
+    
+    sessionId.current = storedSessionId;
+    console.log('Session ID initialized:', sessionId.current);
+  }, []);
 
   async function handleSend(messageText) {
     if (!messageText.trim()) return;
@@ -46,7 +76,7 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           question: messageText,
-          session_id: "user_session_" + Date.now() // Optional: add session management
+          session_id: sessionId.current // Use the persistent session ID
         }),
       });
 
