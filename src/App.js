@@ -11,6 +11,10 @@ import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
 import { track } from "@vercel/analytics";
+import { HelmetProvider } from 'react-helmet-async';
+import SEOHead from './components/SEOHead';
+import ContentHeader from './components/ContentHeader';
+import BlogContent from './components/BlogContent';
 
 // Change from HTTP to HTTPS on custom port
 const BACKEND_URL = "https://api.englishcorner.cyou:8443/chat";
@@ -82,6 +86,14 @@ function App() {
     
     sessionId.current = storedSessionId;
     console.log('Session ID initialized:', sessionId.current);
+    
+    // Track page view for SEO
+    track('page_view', {
+      page: 'main_chat',
+      session_id: sessionId.current,
+      user_agent: navigator.userAgent,
+      referrer: document.referrer || 'direct'
+    });
     
     // Load chat history for this session
     loadChatHistory();
@@ -278,22 +290,51 @@ function generateDeviceFingerprint() {
   }
 
   return (
-    <div style={{ position: "relative", height: "100vh", width: "100%" }}>
-      <MainContainer responsive>
-        <ChatContainer>
-          <MessageList
-            typingIndicator={isTyping ? <TypingIndicator content="Forever English Corner is typing" /> : null}
-          >
-            {messages.map(({ id, message, sender, direction }) => (
-              <Message key={id} model={{ message, sender, direction }} />
-            ))}
-          </MessageList>
-          <MessageInput placeholder="Type your question here..." onSend={handleSend} />
-        </ChatContainer>
-      </MainContainer>
-      <SpeedInsights />
-      <Analytics />
-    </div>
+    <HelmetProvider>
+      <SEOHead />
+      <div style={{ position: "relative", minHeight: "100vh", width: "100%" }}>
+        <ContentHeader />
+        <div style={{ height: "70vh", padding: "0 20px 20px 20px" }}>
+          <MainContainer responsive>
+            <ChatContainer>
+              <MessageList
+                typingIndicator={isTyping ? <TypingIndicator content="Forever English Corner is typing" /> : null}
+              >
+                {messages.map(({ id, message, sender, direction }) => (
+                  <Message key={id} model={{ message, sender, direction }} />
+                ))}
+              </MessageList>
+              <MessageInput placeholder="Ask me about Forever English Corner..." onSend={handleSend} />
+            </ChatContainer>
+          </MainContainer>
+        </div>
+        
+        {/* SEO-Rich Blog Content */}
+        <BlogContent />
+        
+        {/* SEO Footer Content */}
+        <footer style={{ 
+          background: '#f8f9fa', 
+          padding: '20px', 
+          textAlign: 'center',
+          borderTop: '1px solid #e9ecef',
+          fontSize: '0.9rem',
+          color: '#6c757d'
+        }}>
+          <p>
+            <strong>Forever English Corner</strong> - Shenzhen's premier English learning community since 2017. 
+            Join us every Wednesday and Friday at Futian Station for free English practice sessions.
+          </p>
+          <p>
+            Keywords: English practice Shenzhen, language exchange, international community, 
+            free English classes, conversation practice, Futian Station English Corner
+          </p>
+        </footer>
+        
+        <SpeedInsights />
+        <Analytics />
+      </div>
+    </HelmetProvider>
   );
 }
 
