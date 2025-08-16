@@ -15,7 +15,7 @@ const ContentHeader = () => {
         <div className="quick-info">
           <div className="info-item">
             <span className="icon">📅</span>
-            <span>Every Wed & Fri, 19:30-22:00</span>
+            <span>Wed or Fri, 19:30-22:00</span>
           </div>
           <div className="info-item">
             <span className="icon">📍</span>

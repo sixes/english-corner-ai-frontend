@@ -43,7 +43,7 @@ const BlogContent = () => {
             across the city.
           </p>
           <ul style={{ paddingLeft: '20px', lineHeight: '1.7' }}>
-            <li>Metro Lines 1, 2, 3, and 11 intersection</li>
+            <li>Metro Lines 2, 3, and 11 intersection</li>
             <li>Central business district location</li>
             <li>Comfortable Starbucks environment</li>
             <li>Free WiFi and refreshments available</li>
@@ -130,7 +130,7 @@ const BlogContent = () => {
           }}>
             <h4 style={{ margin: '0 0 10px 0' }}>📅 Next Session</h4>
             <p style={{ margin: '0', fontSize: '1.1rem' }}>
-              Every Wednesday & Friday, 19:30-22:00<br/>
+              Wednesday or Friday, 19:30-22:00<br/>
               Starbucks, Futian Station, Shenzhen<br/>
               <strong>Free to join!</strong>
             </p>
