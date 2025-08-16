@@ -1,3 +1,5 @@
+// Polyfills for older browsers (iOS Safari, older Android)
+import 'react-app-polyfill/stable';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
