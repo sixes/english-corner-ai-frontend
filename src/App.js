@@ -17,7 +17,7 @@ const BACKEND_URL = "https://api.englishcorner.cyou:8443/chat";
 function generateSessionId() {
   const timestamp = Date.now();
   const userAgent = navigator.userAgent;
-  const screenInfo = `${screen.width}x${screen.height}`;
+  const screenInfo = `${window.screen.width}x${window.screen.height}`;
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const language = navigator.language;
   
