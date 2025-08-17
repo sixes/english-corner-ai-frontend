@@ -309,13 +309,13 @@ function generateDeviceFingerprint() {
               overflowY: 'auto',
               background: 'transparent',
             }}
-            typingIndicator={isTyping ? <TypingIndicator content="Forever English Corner is typing" /> : null}
+            typingIndicator={null}
           >
             {messages.map(({ id, message, sender, direction }) => (
               <Message key={id} model={{ message, sender, direction }} />
             ))}
             {/* Spacer for extra space above input */}
-            <div style={{ height: '60px' }} />
+            <div style={{ height: '80px' }} />
           </MessageList>
           <MessageInput
             placeholder="Type your question here..."
@@ -331,6 +331,20 @@ function generateDeviceFingerprint() {
           />
         </ChatContainer>
       </MainContainer>
+      {isTyping && (
+        <div style={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          bottom: '56px',
+          zIndex: 999,
+          display: 'flex',
+          justifyContent: 'flex-start',
+          pointerEvents: 'none',
+        }}>
+          <TypingIndicator content="Forever English Corner is typing" />
+        </div>
+      )}
       <SpeedInsights />
       <Analytics />
     </div>
