@@ -537,8 +537,8 @@ function generateDeviceFingerprint() {
               background: 'transparent',
               // Ensure smooth scrolling on mobile
               WebkitOverflowScrolling: 'touch',
-              // Add minimal padding for proper spacing
-              paddingTop: '16px', // Space between header and first message
+              // Add sufficient padding to prevent content from hiding behind header
+              paddingTop: '48px', // More padding to ensure first message is fully visible when scrolled to top
               paddingBottom: '96px', // Extra space (80px + 16px) above input to ensure last message is visible
               boxSizing: 'border-box', // Include padding in height calculation
             }}
@@ -570,11 +570,13 @@ function generateDeviceFingerprint() {
           position: 'fixed',
           left: 0,
           right: 0,
-          bottom: '56px',
+          bottom: `calc(56px + env(safe-area-inset-bottom, 0px))`, // Position right above message input
           zIndex: 999,
           display: 'flex',
           justifyContent: 'flex-start',
           pointerEvents: 'none',
+          paddingLeft: '16px',
+          paddingBottom: '8px',
         }}>
           <TypingIndicator content="Forever English Corner is typing" />
         </div>
