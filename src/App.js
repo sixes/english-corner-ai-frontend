@@ -6,6 +6,7 @@ import {
   Message,
   MessageInput,
   TypingIndicator,
+  ConversationHeader,
 } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import { SpeedInsights } from "@vercel/speed-insights/react";
@@ -279,16 +280,55 @@ function generateDeviceFingerprint() {
 
   return (
     <div style={{ position: "relative", height: "100vh", width: "100%" }}>
-      <MainContainer responsive>
+      {/* Fixed header using chatscope ConversationHeader */}
+      <ConversationHeader
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1001,
+          width: '100%',
+        }}
+      >
+        <ConversationHeader.Content
+          userName="Forever English Corner AI"
+          info="Ask me anything about our community!"
+        />
+      </ConversationHeader>
+      <MainContainer responsive style={{ height: "100%" }}>
         <ChatContainer>
           <MessageList
+            style={{
+              position: 'absolute',
+              top: '56px',
+              bottom: '56px', // 56px for input row
+              left: 0,
+              right: 0,
+              width: '100%',
+              overflowY: 'auto',
+              background: 'transparent',
+            }}
             typingIndicator={isTyping ? <TypingIndicator content="Forever English Corner is typing" /> : null}
           >
             {messages.map(({ id, message, sender, direction }) => (
               <Message key={id} model={{ message, sender, direction }} />
             ))}
+            {/* Spacer for extra space above input */}
+            <div style={{ height: '60px' }} />
           </MessageList>
-          <MessageInput placeholder="Type your question here..." onSend={handleSend} />
+          <MessageInput
+            placeholder="Type your question here..."
+            onSend={handleSend}
+            style={{
+              position: 'fixed',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 1000,
+              width: '100%',
+            }}
+          />
         </ChatContainer>
       </MainContainer>
       <SpeedInsights />
