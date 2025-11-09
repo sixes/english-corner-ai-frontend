@@ -1,13 +1,15 @@
+'use client'
+
 import React, { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import './About.css';
 import ChatWidget from './ChatWidget';
 
 const About = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleBackToChat = () => {
-    navigate('/chat');
+    router.push('/chat');
   };
   return (
     <div className="about-page">

@@ -1,15 +1,17 @@
+'use client'
+
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import './ChatWidget.css';
 
 // position: 'fixed' (default) or 'aboveInput' (absolute positioned inside chat)
 const ChatWidget = ({ position = 'fixed' }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
   const openChat = () => {
     // Navigate to the main chat page and ensure it's in view
-    navigate('/chat');
+    router.push('/chat');
     setIsOpen(false);
   };
 

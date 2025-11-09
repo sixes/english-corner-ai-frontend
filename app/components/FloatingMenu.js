@@ -1,18 +1,20 @@
+'use client'
+
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import './FloatingMenu.css';
 
 const FloatingMenu = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showWeChat, setShowWeChat] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   const handleAboutClick = () => {
-    navigate('/');
+    router.push('/');
     setIsMenuOpen(false);
   };
 

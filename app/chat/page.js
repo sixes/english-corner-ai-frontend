@@ -1,0 +1,435 @@
+'use client'
+
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from 'next/navigation';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { 
+  signInWithPopup,
+  GoogleAuthProvider,
+  sendSignInLinkToEmail,
+  isSignInWithEmailLink,
+  signInWithEmailLink,
+  signOut as firebaseSignOut 
+} from 'firebase/auth';
+import { auth } from '../../lib/firebase';
+import {
+  MainContainer,
+  ChatContainer,
+  MessageList,
+  Message,
+  MessageInput,
+  TypingIndicator,
+} from "@chatscope/chat-ui-kit-react";
+import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
+import { track } from "@vercel/analytics";
+import ContentHeader from '../components/ContentHeader';
+import FloatingMenu from '../components/FloatingMenu';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.englishcorner.cyou:8443/chat";
+
+// Generate a unique session ID based on device characteristics and timestamp
+function generateSessionId() {
+  const timestamp = Date.now();
+  const userAgent = typeof window !== 'undefined' ? navigator.userAgent : '';
+  const screenInfo = typeof window !== 'undefined' ? `${window.screen.width}x${window.screen.height}` : '';
+  const timezone = typeof window !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : '';
+  const language = typeof window !== 'undefined' ? navigator.language : '';
+  
+  const deviceCharacteristics = [userAgent, screenInfo, timezone, language].join('-');
+  const deviceFingerprint = typeof window !== 'undefined' 
+    ? btoa(deviceCharacteristics).replace(/[^a-zA-Z0-9]/g, '').slice(0, 16)
+    : 'server';
+  
+  return `session_${deviceFingerprint}_${timestamp}`;
+}
+
+export default function ChatPage() {
+  const router = useRouter();
+  const [user, loading] = useAuthState(auth);
+  const [messages, setMessages] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [emailForSignIn, setEmailForSignIn] = useState('');
+  const [showEmailInput, setShowEmailInput] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const sessionId = useRef(null);
+
+  // Check if user is signing in with email link
+  useEffect(() => {
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      let email = window.localStorage.getItem('emailForSignIn');
+      if (!email) {
+        email = window.prompt('Please provide your email for confirmation');
+      }
+      if (email) {
+        signInWithEmailLink(auth, email, window.location.href)
+          .then(() => {
+            window.localStorage.removeItem('emailForSignIn');
+            window.history.replaceState({}, document.title, '/chat');
+          })
+          .catch((error) => {
+            console.error('Error signing in with email link:', error);
+            alert('Failed to sign in. Please try again.');
+          });
+      }
+    }
+  }, []);
+
+  // Firebase sign in handlers
+  const signInWithGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      track('user_signed_in', { provider: 'google' });
+    } catch (error) {
+      console.error('Google sign in error:', error);
+      alert('Failed to sign in with Google. Please try again.');
+    }
+  };
+
+  const handleEmailSignIn = async () => {
+    if (!emailForSignIn) {
+      alert('Please enter your email address');
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailForSignIn)) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    try {
+      const actionCodeSettings = {
+        url: window.location.origin + '/chat',
+        handleCodeInApp: true,
+      };
+      
+      await sendSignInLinkToEmail(auth, emailForSignIn, actionCodeSettings);
+      window.localStorage.setItem('emailForSignIn', emailForSignIn);
+      setEmailSent(true);
+      track('email_signin_link_sent');
+      alert('Check your email for the sign-in link! If you don\'t see it, check your spam folder.');
+    } catch (error) {
+      console.error('Email sign in error:', error);
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to send sign-in email. ';
+      
+      if (error.code === 'auth/invalid-email') {
+        errorMessage += 'Invalid email address format.';
+      } else if (error.code === 'auth/missing-email') {
+        errorMessage += 'Please enter your email address.';
+      } else if (error.code === 'auth/unauthorized-continue-uri') {
+        errorMessage += 'Email sign-in is not properly configured. Please use Google sign-in instead.';
+      } else if (error.code === 'auth/invalid-continue-uri') {
+        errorMessage += 'Configuration error. Please contact support.';
+      } else {
+        errorMessage += `Error: ${error.message}. Please try Google sign-in instead or contact support.`;
+      }
+      
+      alert(errorMessage);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await firebaseSignOut(auth);
+      track('user_signed_out');
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
+
+  const saveChatHistory = useCallback((messagesToSave) => {
+    try {
+      const limitedMessages = messagesToSave.slice(-100);
+      localStorage.setItem('english_corner_chat_history', JSON.stringify(limitedMessages));
+    } catch (error) {
+      console.error('Error saving chat history:', error);
+    }
+  }, []);
+
+  const loadChatHistory = useCallback(() => {
+    try {
+      const storedMessages = localStorage.getItem('english_corner_chat_history');
+      if (storedMessages) {
+        const parsedMessages = JSON.parse(storedMessages);
+        setMessages(parsedMessages);
+      } else {
+        const welcomeMessage = {
+          message: "Hi! Ask me anything about Forever English Corner.",
+          sender: "bot",
+          direction: "incoming",
+          id: 0,
+        };
+        setMessages([welcomeMessage]);
+        saveChatHistory([welcomeMessage]);
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+    }
+  }, [saveChatHistory]);
+
+  useEffect(() => {
+    if (!sessionId.current) {
+      sessionId.current = generateSessionId();
+    }
+    loadChatHistory();
+  }, [loadChatHistory]);
+
+  const handleSend = async (message) => {
+    const newMessage = {
+      message,
+      direction: "outgoing",
+      sender: "user",
+      id: messages.length,
+    };
+
+    const newMessages = [...messages, newMessage];
+    setMessages(newMessages);
+    saveChatHistory(newMessages);
+    setIsTyping(true);
+
+    try {
+      const response = await fetch(BACKEND_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: message,
+          session_id: sessionId.current,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const botMessage = {
+        message: data.response || "I'm having trouble responding. Please try again.",
+        sender: "bot",
+        direction: "incoming",
+        id: messages.length + 1,
+      };
+
+      const updatedMessages = [...newMessages, botMessage];
+      setMessages(updatedMessages);
+      saveChatHistory(updatedMessages);
+      
+      track('chat_message_sent', {
+        message_length: message.length,
+        session_id: sessionId.current
+      });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMessage = {
+        message: "Sorry, I couldn't process your message. Please check your connection and try again.",
+        sender: "bot",
+        direction: "incoming",
+        id: messages.length + 1,
+      };
+      const updatedMessages = [...newMessages, errorMessage];
+      setMessages(updatedMessages);
+      saveChatHistory(updatedMessages);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const handleClearHistory = () => {
+    const welcomeMessage = {
+      message: "Chat history cleared. Hi! Ask me anything about Forever English Corner.",
+      sender: "bot",
+      direction: "incoming",
+      id: 0,
+    };
+    setMessages([welcomeMessage]);
+    saveChatHistory([welcomeMessage]);
+    sessionId.current = generateSessionId();
+  };
+
+  return (
+    <div style={{ position: "relative", height: "100vh", display: "flex", flexDirection: "column" }}>
+      <ContentHeader />
+      
+      {/* Auth Status Bar */}
+      <div style={{ 
+        padding: '10px 20px', 
+        background: user ? '#e8f5e9' : '#fff3e0',
+        borderBottom: '1px solid #ddd',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '10px'
+      }}>
+        {loading ? (
+          <span>Loading...</span>
+        ) : user ? (
+          <>
+            <span>Welcome, {user.displayName || user.email || 'User'}!</span>
+            <button 
+              onClick={handleSignOut}
+              style={{
+                padding: '8px 16px',
+                background: '#f44336',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              Sign Out
+            </button>
+          </>
+        ) : (
+          <>
+            <span>Sign in to sync your chat history across devices</span>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <button 
+                onClick={signInWithGoogle}
+                style={{
+                  padding: '8px 16px',
+                  background: '#4285f4',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                Sign in with Google
+              </button>
+
+              <button 
+                onClick={() => router.push('/auth')}
+                style={{
+                  padding: '8px 16px',
+                  background: '#667eea',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                Email Sign Up/Sign In
+              </button>
+              
+              {!showEmailInput ? (
+                <button 
+                  onClick={() => setShowEmailInput(true)}
+                  style={{
+                    padding: '8px 16px',
+                    background: '#34a853',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  Passwordless Email Link
+                </button>
+              ) : (
+                <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={emailForSignIn}
+                    onChange={(e) => setEmailForSignIn(e.target.value)}
+                    style={{
+                      padding: '8px 12px',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      fontSize: '14px',
+                      minWidth: '200px'
+                    }}
+                  />
+                  <button 
+                    onClick={handleEmailSignIn}
+                    disabled={emailSent}
+                    style={{
+                      padding: '8px 16px',
+                      background: emailSent ? '#ccc' : '#34a853',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: emailSent ? 'not-allowed' : 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    {emailSent ? 'Sent!' : 'Send Link'}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setShowEmailInput(false);
+                      setEmailSent(false);
+                      setEmailForSignIn('');
+                    }}
+                    style={{
+                      padding: '8px 12px',
+                      background: '#666',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      <div style={{ position: "relative", flexGrow: 1 }}>
+        <MainContainer>
+          <ChatContainer>
+            <MessageList
+              scrollBehavior="smooth"
+              typingIndicator={isTyping ? <TypingIndicator content="Assistant is typing" /> : null}
+            >
+              {messages.map((msg, i) => (
+                <Message key={i} model={msg} />
+              ))}
+            </MessageList>
+            <MessageInput
+              placeholder="Type your message here..."
+              onSend={handleSend}
+              attachButton={false}
+            />
+          </ChatContainer>
+        </MainContainer>
+
+        <button
+          onClick={handleClearHistory}
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            padding: "8px 16px",
+            backgroundColor: "#ff5722",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "14px",
+            zIndex: 1000,
+          }}
+        >
+          Clear Chat History
+        </button>
+      </div>
+      
+      <FloatingMenu />
+    </div>
+  );
+}
