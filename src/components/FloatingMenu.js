@@ -12,7 +12,7 @@ const FloatingMenu = () => {
   };
 
   const handleAboutClick = () => {
-    navigate('/about');
+    navigate('/');
     setIsMenuOpen(false);
   };
 

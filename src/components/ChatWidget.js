@@ -9,7 +9,7 @@ const ChatWidget = ({ position = 'fixed' }) => {
 
   const openChat = () => {
     // Navigate to the main chat page and ensure it's in view
-    navigate('/');
+    navigate('/chat');
     setIsOpen(false);
   };
 

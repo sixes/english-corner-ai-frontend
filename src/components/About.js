@@ -7,14 +7,14 @@ const About = () => {
   const navigate = useNavigate();
 
   const handleBackToChat = () => {
-    navigate('/');
+    navigate('/chat');
   };
   return (
     <div className="about-page">
       <div className="about-header">
-        <h1>About Forever English Corner</h1>
+        <h1>Forever English Corner</h1>
         <p className="about-subtitle">
-          Shenzhen's longest-running English practice community since 2017
+          Shenzhen's English practice community since 2017
         </p>
       </div>
 
@@ -28,7 +28,7 @@ const About = () => {
             </div>
             <div className="feature-card">
               <h3>Interactive Games</h3>
-              <p>"One Truth, One Lie" and other engaging activities</p>
+              <p>"One Truth and a Lie" adapted from Two Truths and a Lie</p>
             </div>
             <div className="feature-card">
               <h3>Topic Discussions</h3>
@@ -45,28 +45,34 @@ const About = () => {
           <h2>📍 Location & Schedule</h2>
           <div className="info-grid">
             <div className="info-card">
-              <h3>Venue</h3>
-              <p><strong>Starbucks (联通大厦店)</strong></p>
-              <p>Near Futian Station (subway station)</p>
-              <ul>
-                <li>Metro Lines 2, 3, and 11 intersection</li>
-                <li>Central business district location</li>
-                <li>Comfortable environment with WiFi</li>
-              </ul>
-            </div>
-            <div className="info-card">
-              <h3>Regular Sessions</h3>
-              <p><strong>Wednesdays & Fridays</strong></p>
+              <h3>Weekly Sessions</h3>
+              <p><strong>Once per week</strong></p>
+              <p>Either Wednesday OR Friday</p>
               <p>19:30 - 22:00 (2.5 hours)</p>
               <p className="highlight">Always Free to Join!</p>
             </div>
             <div className="info-card">
-              <h3>Special Game Sessions</h3>
-              <p><strong>Some Sundays</strong></p>
-              <p>9:30 start time</p>
-              <p>Location: Shenzhen North Station</p>
+              <h3>Wednesday Venue</h3>
+              <p><strong>Starbucks (联通大厦店)</strong></p>
+              <p>Near Futian Station</p>
+              <ul>
+                <li>Metro Lines 2, 3, and 11 intersection</li>
+                <li>Central business district location</li>
+              </ul>
+            </div>
+            <div className="info-card">
+              <h3>Friday Venue</h3>
+              <p><strong>Starbucks (深圳星河苏活购物公园店)</strong></p>
+              <p>Xinghе COCOPARK Shopping Mall</p>
+              <ul>
+                <li>Check WeChat group for weekly updates</li>
+                <li>Venue may occasionally change</li>
+              </ul>
             </div>
           </div>
+          <p className="schedule-note" style={{marginTop: '1rem', fontStyle: 'italic', textAlign: 'center', color: '#666'}}>
+            📢 Check our WeChat group for the exact day and venue each week
+          </p>
         </section>
 
         <section className="about-section">
@@ -143,7 +149,7 @@ const About = () => {
             <h3>Requirements</h3>
             <ul>
               <li>Basic English communication skills</li>
-              <li>Age 18+ (we've had members over 80!)</li>
+              <li>Age 18+</li>
               <li>Respectful and friendly attitude</li>
               <li>Willingness to practice and learn</li>
             </ul>
