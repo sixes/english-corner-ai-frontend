@@ -2,8 +2,14 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import './About.css';
 import ChatWidget from './components/ChatWidget';
+
+const Sessions = dynamic(() => import('./components/Sessions'), {
+  ssr: false,
+  loading: () => <div className="sessions-loading">Loading sessions...</div>
+});
 
 export default function Home() {
   return (
@@ -16,6 +22,11 @@ export default function Home() {
       </div>
 
       <div className="about-content">
+        {/* Sessions Section - First */}
+        <Sessions />
+        
+        {/* Divider */}
+        <div style={{ margin: '3rem 0', borderTop: '2px solid #e0e0e0' }}></div>
         <section className="about-section">
           <h2>🎯 What We Offer</h2>
           <div className="content-grid">

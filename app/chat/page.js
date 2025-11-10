@@ -3,13 +3,13 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from 'next/navigation';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { 
+import {
   signInWithPopup,
   GoogleAuthProvider,
   sendSignInLinkToEmail,
   isSignInWithEmailLink,
   signInWithEmailLink,
-  signOut as firebaseSignOut 
+  signOut as firebaseSignOut
 } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
 import {
@@ -25,7 +25,7 @@ import { track } from "@vercel/analytics";
 import ContentHeader from '../components/ContentHeader';
 import FloatingMenu from '../components/FloatingMenu';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.englishcorner.cyou:8443/chat";
+const BACKEND_URL = "/api/chat"; // Use local proxy to avoid CORS
 
 // Generate a unique session ID based on device characteristics and timestamp
 function generateSessionId() {
@@ -34,12 +34,12 @@ function generateSessionId() {
   const screenInfo = typeof window !== 'undefined' ? `${window.screen.width}x${window.screen.height}` : '';
   const timezone = typeof window !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : '';
   const language = typeof window !== 'undefined' ? navigator.language : '';
-  
+
   const deviceCharacteristics = [userAgent, screenInfo, timezone, language].join('-');
-  const deviceFingerprint = typeof window !== 'undefined' 
+  const deviceFingerprint = typeof window !== 'undefined'
     ? btoa(deviceCharacteristics).replace(/[^a-zA-Z0-9]/g, '').slice(0, 16)
     : 'server';
-  
+
   return `session_${deviceFingerprint}_${timestamp}`;
 }
 
@@ -104,7 +104,7 @@ export default function ChatPage() {
         url: window.location.origin + '/chat',
         handleCodeInApp: true,
       };
-      
+
       await sendSignInLinkToEmail(auth, emailForSignIn, actionCodeSettings);
       window.localStorage.setItem('emailForSignIn', emailForSignIn);
       setEmailSent(true);
@@ -112,10 +112,10 @@ export default function ChatPage() {
       alert('Check your email for the sign-in link! If you don\'t see it, check your spam folder.');
     } catch (error) {
       console.error('Email sign in error:', error);
-      
+
       // Provide more specific error messages
       let errorMessage = 'Failed to send sign-in email. ';
-      
+
       if (error.code === 'auth/invalid-email') {
         errorMessage += 'Invalid email address format.';
       } else if (error.code === 'auth/missing-email') {
@@ -127,7 +127,7 @@ export default function ChatPage() {
       } else {
         errorMessage += `Error: ${error.message}. Please try Google sign-in instead or contact support.`;
       }
-      
+
       alert(errorMessage);
     }
   };
@@ -192,24 +192,34 @@ export default function ChatPage() {
     setIsTyping(true);
 
     try {
+      console.log('Sending message to backend:', BACKEND_URL);
+      console.log('Payload:', { question: message, session_id: sessionId.current });
+      
       const response = await fetch(BACKEND_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          query: message,
+          question: message,
           session_id: sessionId.current,
         }),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Response error:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Response data:', data);
+      
       const botMessage = {
-        message: data.response || "I'm having trouble responding. Please try again.",
+        message: data.answer || data.response || "I'm having trouble responding. Please try again.",
         sender: "bot",
         direction: "incoming",
         id: messages.length + 1,
@@ -218,15 +228,31 @@ export default function ChatPage() {
       const updatedMessages = [...newMessages, botMessage];
       setMessages(updatedMessages);
       saveChatHistory(updatedMessages);
-      
+
       track('chat_message_sent', {
         message_length: message.length,
         session_id: sessionId.current
       });
     } catch (error) {
       console.error("Error sending message:", error);
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      
+      let errorMsg = "Sorry, I couldn't process your message. ";
+      
+      if (error.message.includes('Failed to fetch')) {
+        errorMsg += "Network error - please check your internet connection or try again later.";
+      } else if (error.message.includes('CORS')) {
+        errorMsg += "Connection blocked by CORS policy.";
+      } else {
+        errorMsg += `Error: ${error.message}`;
+      }
+      
       const errorMessage = {
-        message: "Sorry, I couldn't process your message. Please check your connection and try again.",
+        message: errorMsg,
         sender: "bot",
         direction: "incoming",
         id: messages.length + 1,
@@ -254,10 +280,10 @@ export default function ChatPage() {
   return (
     <div style={{ position: "relative", height: "100vh", display: "flex", flexDirection: "column" }}>
       <ContentHeader />
-      
+
       {/* Auth Status Bar */}
-      <div style={{ 
-        padding: '10px 20px', 
+      <div style={{
+        padding: '10px 20px',
         background: user ? '#e8f5e9' : '#fff3e0',
         borderBottom: '1px solid #ddd',
         display: 'flex',
@@ -271,7 +297,7 @@ export default function ChatPage() {
         ) : user ? (
           <>
             <span>Welcome, {user.displayName || user.email || 'User'}!</span>
-            <button 
+            <button
               onClick={handleSignOut}
               style={{
                 padding: '8px 16px',
@@ -290,7 +316,7 @@ export default function ChatPage() {
           <>
             <span>Sign in to sync your chat history across devices</span>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-              <button 
+              <button
                 onClick={signInWithGoogle}
                 style={{
                   padding: '8px 16px',
@@ -305,7 +331,7 @@ export default function ChatPage() {
                 Sign in with Google
               </button>
 
-              <button 
+              <button
                 onClick={() => router.push('/auth')}
                 style={{
                   padding: '8px 16px',
@@ -319,9 +345,9 @@ export default function ChatPage() {
               >
                 Email Sign Up/Sign In
               </button>
-              
+
               {!showEmailInput ? (
-                <button 
+                <button
                   onClick={() => setShowEmailInput(true)}
                   style={{
                     padding: '8px 16px',
@@ -350,7 +376,7 @@ export default function ChatPage() {
                       minWidth: '200px'
                     }}
                   />
-                  <button 
+                  <button
                     onClick={handleEmailSignIn}
                     disabled={emailSent}
                     style={{
@@ -365,7 +391,7 @@ export default function ChatPage() {
                   >
                     {emailSent ? 'Sent!' : 'Send Link'}
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       setShowEmailInput(false);
                       setEmailSent(false);
@@ -428,7 +454,7 @@ export default function ChatPage() {
           Clear Chat History
         </button>
       </div>
-      
+
       <FloatingMenu />
     </div>
   );

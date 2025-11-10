@@ -1,0 +1,113 @@
+.sessions-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.sessions-section {
+  margin-bottom: 3rem;
+}
+
+.sessions-section h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.sessions-loading,
+.sessions-error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+}
+
+.sessions-error {
+  color: #d32f2f;
+}
+
+.no-sessions {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-style: italic;
+}
+
+.sessions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.session-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.session-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.session-card.upcoming {
+  border-left: 4px solid #4CAF50;
+}
+
+.session-card.past {
+  border-left: 4px solid #9E9E9E;
+  opacity: 0.85;
+}
+
+.session-header h3 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: #333;
+  line-height: 1.4;
+  min-height: 2.8rem;
+}
+
+.session-details {
+  margin-bottom: 1rem;
+}
+
+.session-details p {
+  margin: 0.5rem 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.signup-btn {
+  width: 100%;
+  padding: 0.8rem;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.signup-btn:hover {
+  background: #45a049;
+}
+
+.more-sessions {
+  text-align: center;
+  margin-top: 1rem;
+  color: #666;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .sessions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sessions-section h2 {
+    font-size: 1.5rem;
+  }
+}
