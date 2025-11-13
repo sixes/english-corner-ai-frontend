@@ -48,6 +48,7 @@ export default function ChatPage() {
   const [user, loading] = useAuthState(auth);
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+
   const [emailForSignIn, setEmailForSignIn] = useState('');
   const [showEmailInput, setShowEmailInput] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -55,6 +56,8 @@ export default function ChatPage() {
 
   // Check if user is signing in with email link
   useEffect(() => {
+    if (!auth || typeof window === 'undefined') return;
+    
     if (isSignInWithEmailLink(auth, window.location.href)) {
       let email = window.localStorage.getItem('emailForSignIn');
       if (!email) {

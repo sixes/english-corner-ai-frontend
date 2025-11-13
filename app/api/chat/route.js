@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.englishcorner.cyou:8443/chat";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+if (!BACKEND_URL) {
+  throw new Error('NEXT_PUBLIC_BACKEND_URL is not defined. Please configure the backend URL in your environment.');
+}
 
 export async function POST(request) {
   try {

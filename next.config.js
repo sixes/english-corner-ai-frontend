@@ -2,7 +2,15 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['www.englishcorner.cyou'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'www.englishcorner.cyou',
+      },
+    ],
+  },
+  experimental: {
+    // Turbopack is experimental in Next.js 16
   },
 }
 
