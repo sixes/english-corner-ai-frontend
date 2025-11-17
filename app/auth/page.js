@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   createUserWithEmailAndPassword, 
@@ -11,6 +11,40 @@ import {
 import { auth } from '../../lib/firebase';
 import Link from 'next/link';
 import { track } from '@vercel/analytics';
+
+const getNavigatorSnapshot = () => {
+  if (typeof navigator === 'undefined') {
+    return null;
+  }
+
+  return {
+    userAgent: navigator.userAgent,
+    language: navigator.language,
+    online: navigator.onLine,
+  };
+};
+
+const sendDebugLog = async (event, details = {}) => {
+  if (typeof window === 'undefined' || typeof fetch === 'undefined') {
+    return;
+  }
+
+  try {
+    await fetch('/api/debug/log', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        event,
+        details,
+        timestamp: new Date().toISOString(),
+      }),
+    });
+  } catch (logError) {
+    console.warn('Failed to send debug log', logError);
+  }
+};
 
 export default function AuthPage() {
   const router = useRouter();
@@ -26,6 +60,56 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
+  const [firebaseConnectivity, setFirebaseConnectivity] = useState('unknown'); // 'unknown' | 'reachable' | 'unreachable'
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof fetch === 'undefined') {
+      return;
+    }
+
+    let cancelled = false;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 7000);
+
+    const checkConnectivity = async () => {
+      try {
+        await fetch('https://www.googleapis.com/generate_204', {
+          mode: 'no-cors',
+          signal: controller.signal,
+        });
+        if (!cancelled) {
+          setFirebaseConnectivity('reachable');
+        }
+      } catch (connectivityError) {
+        console.error('Firebase connectivity check failed:', connectivityError);
+        sendDebugLog('firebase_connectivity_error', {
+          message: connectivityError?.message,
+          stack: connectivityError?.stack,
+          navigator: getNavigatorSnapshot(),
+        });
+        if (!cancelled) {
+          setFirebaseConnectivity('unreachable');
+        }
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    };
+
+    checkConnectivity();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  const getNetworkErrorMessage = () => {
+    if (firebaseConnectivity === 'unreachable') {
+      return 'We cannot reach Google authentication services from this network. This often happens if Google domains are blocked. Please try a VPN or different network and let us know if the issue persists.';
+    }
+    return 'Network error. Please check your connection.';
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -76,6 +160,13 @@ export default function AuthPage() {
     if (!validateForm()) {
       return;
     }
+
+    sendDebugLog('auth_submit_start', {
+      mode: isSignUp ? 'signup' : 'signin',
+      firebaseConnectivity,
+      emailProvided: Boolean(formData.email),
+      navigator: getNavigatorSnapshot(),
+    });
 
     setLoading(true);
     setError('');
@@ -134,6 +225,13 @@ export default function AuthPage() {
       }
     } catch (error) {
       console.error('Auth error:', error);
+      sendDebugLog('auth_submit_error', {
+        mode: isSignUp ? 'signup' : 'signin',
+        code: error?.code,
+        message: error?.message,
+        firebaseConnectivity,
+        navigator: getNavigatorSnapshot(),
+      });
       
       // Provide user-friendly error messages
       switch (error.code) {
@@ -156,7 +254,7 @@ export default function AuthPage() {
           setError('Too many failed attempts. Please try again later.');
           break;
         case 'auth/network-request-failed':
-          setError('Network error. Please check your connection.');
+          setError(getNetworkErrorMessage());
           break;
         default:
           setError(error.message || 'An error occurred. Please try again.');
@@ -177,6 +275,10 @@ export default function AuthPage() {
       if (user) {
         await sendEmailVerification(user);
         setResendTimer(60);
+        sendDebugLog('resend_verification_success', {
+          emailDomain: formData.email.includes('@') ? formData.email.split('@')[1] : null,
+          navigator: getNavigatorSnapshot(),
+        });
         
         const interval = setInterval(() => {
           setResendTimer((prev) => {
@@ -192,6 +294,11 @@ export default function AuthPage() {
       }
     } catch (error) {
       console.error('Resend error:', error);
+      sendDebugLog('resend_verification_error', {
+        code: error?.code,
+        message: error?.message,
+        navigator: getNavigatorSnapshot(),
+      });
       setError('Failed to resend verification email. Please try again.');
     } finally {
       setLoading(false);
@@ -252,6 +359,23 @@ export default function AuthPage() {
             }
           </p>
         </div>
+
+        {firebaseConnectivity === 'unreachable' && (
+          <div style={{
+            background: '#fff8e1',
+            border: '1px solid #fbc02d',
+            borderRadius: '8px',
+            padding: '12px',
+            marginBottom: '20px',
+            color: '#5d4037',
+            fontSize: '14px',
+            lineHeight: 1.5
+          }}>
+            <strong>Heads up:</strong> This network cannot reach Google Firebase services right now.
+            This usually means Google domains are blocked locally. Please try a VPN, another network,
+            or share your console logs so we can investigate further.
+          </div>
+        )}
 
         {step === 'verify' ? (
           // Email Verification Step
