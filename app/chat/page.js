@@ -2,16 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from 'next/navigation';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import {
-  signInWithPopup,
-  GoogleAuthProvider,
-  sendSignInLinkToEmail,
-  isSignInWithEmailLink,
-  signInWithEmailLink,
-  signOut as firebaseSignOut
-} from 'firebase/auth';
-import { auth } from '../../lib/firebase';
+import supabase from '../../lib/supabase';
 import {
   MainContainer,
   ChatContainer,
@@ -45,7 +36,8 @@ function generateSessionId() {
 
 export default function ChatPage() {
   const router = useRouter();
-  const [user, loading] = useAuthState(auth);
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
 
@@ -54,38 +46,63 @@ export default function ChatPage() {
   const [emailSent, setEmailSent] = useState(false);
   const sessionId = useRef(null);
 
-  // Check if user is signing in with email link
   useEffect(() => {
-    if (!auth || typeof window === 'undefined') return;
-    
-    if (isSignInWithEmailLink(auth, window.location.href)) {
-      let email = window.localStorage.getItem('emailForSignIn');
-      if (!email) {
-        email = window.prompt('Please provide your email for confirmation');
+    let isMounted = true;
+
+    const loadInitialSession = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (!isMounted) {
+          return;
+        }
+
+        if (error) {
+          console.error('Failed to load Supabase session:', error);
+        }
+
+        setUser(data?.session?.user ?? null);
+      } catch (error) {
+        console.error('Unexpected session error:', error);
+      } finally {
+        if (isMounted) {
+          setAuthLoading(false);
+        }
       }
-      if (email) {
-        signInWithEmailLink(auth, email, window.location.href)
-          .then(() => {
-            window.localStorage.removeItem('emailForSignIn');
-            window.history.replaceState({}, document.title, '/chat');
-          })
-          .catch((error) => {
-            console.error('Error signing in with email link:', error);
-            alert('Failed to sign in. Please try again.');
-          });
+    };
+
+    loadInitialSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) {
+        return;
       }
-    }
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+
+    return () => {
+      isMounted = false;
+      authListener?.subscription.unsubscribe();
+    };
   }, []);
 
-  // Firebase sign in handlers
   const signInWithGoogle = async () => {
     try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/chat` : undefined,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
       track('user_signed_in', { provider: 'google' });
     } catch (error) {
       console.error('Google sign in error:', error);
-      alert('Failed to sign in with Google. Please try again.');
+      alert(error?.message || 'Failed to sign in with Google. Please try again.');
     }
   };
 
@@ -103,32 +120,34 @@ export default function ChatPage() {
     }
 
     try {
-      const actionCodeSettings = {
-        url: window.location.origin + '/chat',
-        handleCodeInApp: true,
-      };
+      const { error } = await supabase.auth.signInWithOtp({
+        email: emailForSignIn,
+        options: {
+          emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/chat` : undefined,
+        },
+      });
 
-      await sendSignInLinkToEmail(auth, emailForSignIn, actionCodeSettings);
-      window.localStorage.setItem('emailForSignIn', emailForSignIn);
+      if (error) {
+        throw error;
+      }
+
       setEmailSent(true);
       track('email_signin_link_sent');
       alert('Check your email for the sign-in link! If you don\'t see it, check your spam folder.');
     } catch (error) {
       console.error('Email sign in error:', error);
 
-      // Provide more specific error messages
       let errorMessage = 'Failed to send sign-in email. ';
 
-      if (error.code === 'auth/invalid-email') {
+      const message = error?.message?.toLowerCase() || '';
+      if (message.includes('invalid email')) {
         errorMessage += 'Invalid email address format.';
-      } else if (error.code === 'auth/missing-email') {
-        errorMessage += 'Please enter your email address.';
-      } else if (error.code === 'auth/unauthorized-continue-uri') {
-        errorMessage += 'Email sign-in is not properly configured. Please use Google sign-in instead.';
-      } else if (error.code === 'auth/invalid-continue-uri') {
-        errorMessage += 'Configuration error. Please contact support.';
+      } else if (message.includes('rate limit')) {
+        errorMessage += 'Too many attempts. Please try again in a few minutes.';
+      } else if (message.includes('otp')) {
+        errorMessage += 'Magic link is not available right now. Please try again later.';
       } else {
-        errorMessage += `Error: ${error.message}. Please try Google sign-in instead or contact support.`;
+        errorMessage += error?.message ? `Error: ${error.message}` : 'Please try again later or use password sign in instead.';
       }
 
       alert(errorMessage);
@@ -137,7 +156,10 @@ export default function ChatPage() {
 
   const handleSignOut = async () => {
     try {
-      await firebaseSignOut(auth);
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw error;
+      }
       track('user_signed_out');
     } catch (error) {
       console.error('Sign out error:', error);
@@ -280,6 +302,8 @@ export default function ChatPage() {
     sessionId.current = generateSessionId();
   };
 
+  const userDisplayName = user?.user_metadata?.full_name || user?.email || 'User';
+
   return (
     <div style={{ position: "relative", height: "100vh", display: "flex", flexDirection: "column" }}>
       <ContentHeader />
@@ -295,11 +319,11 @@ export default function ChatPage() {
         flexWrap: 'wrap',
         gap: '10px'
       }}>
-        {loading ? (
+        {authLoading ? (
           <span>Loading...</span>
         ) : user ? (
           <>
-            <span>Welcome, {user.displayName || user.email || 'User'}!</span>
+            <span>Welcome, {userDisplayName}!</span>
             <button
               onClick={handleSignOut}
               style={{

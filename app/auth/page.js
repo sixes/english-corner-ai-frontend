@@ -1,16 +1,10 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword,
-  updateProfile,
-  sendEmailVerification
-} from 'firebase/auth';
-import { auth } from '../../lib/firebase';
 import Link from 'next/link';
 import { track } from '@vercel/analytics';
+import { supabase } from '../../lib/supabase';
 
 const getNavigatorSnapshot = () => {
   if (typeof navigator === 'undefined') {
@@ -53,69 +47,19 @@ export default function AuthPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
+  const [otpCode, setOtpCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [verificationSent, setVerificationSent] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
-  const [firebaseConnectivity, setFirebaseConnectivity] = useState('unknown'); // 'unknown' | 'reachable' | 'unreachable'
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof fetch === 'undefined') {
-      return;
-    }
-
-    let cancelled = false;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 7000);
-
-    const checkConnectivity = async () => {
-      try {
-        await fetch('https://www.googleapis.com/generate_204', {
-          mode: 'no-cors',
-          signal: controller.signal,
-        });
-        if (!cancelled) {
-          setFirebaseConnectivity('reachable');
-        }
-      } catch (connectivityError) {
-        console.error('Firebase connectivity check failed:', connectivityError);
-        sendDebugLog('firebase_connectivity_error', {
-          message: connectivityError?.message,
-          stack: connectivityError?.stack,
-          navigator: getNavigatorSnapshot(),
-        });
-        if (!cancelled) {
-          setFirebaseConnectivity('unreachable');
-        }
-      } finally {
-        clearTimeout(timeoutId);
-      }
-    };
-
-    checkConnectivity();
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-      clearTimeout(timeoutId);
-    };
-  }, []);
-
-  const getNetworkErrorMessage = () => {
-    if (firebaseConnectivity === 'unreachable') {
-      return 'We cannot reach Google authentication services from this network. This often happens if Google domains are blocked. Please try a VPN or different network and let us know if the issue persists.';
-    }
-    return 'Network error. Please check your connection.';
-  };
+  const getNetworkErrorMessage = () => 'Network error. Please check your connection.';
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value
-    });
+    }));
     setError('');
   };
 
@@ -136,22 +80,51 @@ export default function AuthPage() {
       return false;
     }
 
-    if (!formData.password) {
-      setError('Please enter your password');
-      return false;
-    }
+    if (!isSignUp) {
+      if (!formData.password) {
+        setError('Please enter your password');
+        return false;
+      }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return false;
-    }
-
-    if (isSignUp && formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return false;
+      if (formData.password.length < 6) {
+        setError('Password must be at least 6 characters');
+        return false;
+      }
     }
 
     return true;
+  };
+
+  const getFriendlyAuthError = (error) => {
+    if (!error) {
+      return 'An error occurred. Please try again.';
+    }
+
+    const message = error?.message?.toLowerCase() || '';
+
+    if (message.includes('already registered')) {
+      return 'This email is already registered. Please sign in instead.';
+    }
+    if (message.includes('password should be at least')) {
+      return 'Password is too weak. Please use a stronger password.';
+    }
+    if (message.includes('invalid login credentials')) {
+      return 'Incorrect email or password. Please try again.';
+    }
+    if (message.includes('email not confirmed')) {
+      return 'Please verify your email first. Check your inbox for the verification code.';
+    }
+    if (message.includes('session')) {
+      return 'We could not find an active session. Please sign in again or complete the verification from this device.';
+    }
+    if (error?.status === 429) {
+      return 'Too many failed attempts. Please try again later.';
+    }
+    if (message.includes('network')) {
+      return getNetworkErrorMessage();
+    }
+
+    return error?.message || 'An error occurred. Please try again.';
   };
 
   const handleSubmit = async (e) => {
@@ -163,7 +136,6 @@ export default function AuthPage() {
 
     sendDebugLog('auth_submit_start', {
       mode: isSignUp ? 'signup' : 'signin',
-      firebaseConnectivity,
       emailProvided: Boolean(formData.email),
       navigator: getNavigatorSnapshot(),
     });
@@ -173,26 +145,57 @@ export default function AuthPage() {
 
     try {
       if (isSignUp) {
-        // Sign up
-        const userCredential = await createUserWithEmailAndPassword(
-          auth, 
-          formData.email, 
-          formData.password
-        );
-        
-        // Update profile with name
-        await updateProfile(userCredential.user, {
-          displayName: formData.name
+        try {
+          const response = await fetch('/api/auth/check-user', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: formData.email,
+              name: formData.name,
+            }),
+          });
+
+          if (!response.ok) {
+            const payload = await response.json().catch(() => ({}));
+            throw new Error(payload?.error || 'Failed to validate existing accounts.');
+          }
+
+          const { emailExists, nameExists } = await response.json();
+
+          if (emailExists) {
+            setError('This email already has an account. Please sign in instead.');
+            setLoading(false);
+            return;
+          }
+
+          if (nameExists) {
+            setError('This name is already in use. Please choose a different name or sign in.');
+            setLoading(false);
+            return;
+          }
+        } catch (checkError) {
+          console.error('User uniqueness check failed:', checkError);
+          throw checkError;
+        }
+
+        setOtpCode('');
+        const { error } = await supabase.auth.signInWithOtp({
+          email: formData.email,
+          options: {
+            shouldCreateUser: true,
+            data: { full_name: formData.name.trim() },
+          },
         });
 
-        // Send verification email
-        await sendEmailVerification(userCredential.user);
+        if (error) {
+          throw error;
+        }
         
-        setVerificationSent(true);
         setStep('verify');
         setResendTimer(60); // 60 seconds cooldown
         
-        // Start countdown timer
         const interval = setInterval(() => {
           setResendTimer((prev) => {
             if (prev <= 1) {
@@ -203,19 +206,20 @@ export default function AuthPage() {
           });
         }, 1000);
 
-        track('user_signed_up', { method: 'email' });
+        track('user_signed_up', { method: 'email_otp' });
       } else {
-        // Sign in
-        const userCredential = await signInWithEmailAndPassword(
-          auth, 
-          formData.email, 
-          formData.password
-        );
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
 
-        // Check if email is verified
-        if (!userCredential.user.emailVerified) {
-          setError('Please verify your email first. Check your inbox for the verification link.');
-          await auth.signOut(); // Sign out unverified user
+        if (error) {
+          throw error;
+        }
+
+        if (data?.user && !data.user.email_confirmed_at) {
+          setError('Please verify your email first. Check your inbox for the verification code.');
+          await supabase.auth.signOut();
           setLoading(false);
           return;
         }
@@ -227,38 +231,12 @@ export default function AuthPage() {
       console.error('Auth error:', error);
       sendDebugLog('auth_submit_error', {
         mode: isSignUp ? 'signup' : 'signin',
-        code: error?.code,
+        status: error?.status || error?.code,
         message: error?.message,
-        firebaseConnectivity,
         navigator: getNavigatorSnapshot(),
       });
       
-      // Provide user-friendly error messages
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          setError('This email is already registered. Please sign in instead.');
-          break;
-        case 'auth/weak-password':
-          setError('Password is too weak. Please use a stronger password.');
-          break;
-        case 'auth/invalid-email':
-          setError('Invalid email address.');
-          break;
-        case 'auth/user-not-found':
-          setError('No account found with this email. Please sign up.');
-          break;
-        case 'auth/wrong-password':
-          setError('Incorrect password. Please try again.');
-          break;
-        case 'auth/too-many-requests':
-          setError('Too many failed attempts. Please try again later.');
-          break;
-        case 'auth/network-request-failed':
-          setError(getNetworkErrorMessage());
-          break;
-        default:
-          setError(error.message || 'An error occurred. Please try again.');
-      }
+      setError(getFriendlyAuthError(error));
     } finally {
       setLoading(false);
     }
@@ -267,39 +245,52 @@ export default function AuthPage() {
   const handleResendVerification = async () => {
     if (resendTimer > 0) return;
 
+    if (!formData.email) {
+      setError('Please enter your email so we can resend the verification code.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
-      const user = auth.currentUser;
-      if (user) {
-        await sendEmailVerification(user);
-        setResendTimer(60);
-        sendDebugLog('resend_verification_success', {
-          emailDomain: formData.email.includes('@') ? formData.email.split('@')[1] : null,
-          navigator: getNavigatorSnapshot(),
-        });
-        
-        const interval = setInterval(() => {
-          setResendTimer((prev) => {
-            if (prev <= 1) {
-              clearInterval(interval);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
+      const { error } = await supabase.auth.resend({
+        type: 'email',
+        email: formData.email,
+        options: {
+          shouldCreateUser: true,
+        },
+      });
 
-        alert('Verification email sent! Please check your inbox.');
+      if (error) {
+        throw error;
       }
+
+      setResendTimer(60);
+      sendDebugLog('resend_verification_success', {
+        emailDomain: formData.email.includes('@') ? formData.email.split('@')[1] : null,
+        navigator: getNavigatorSnapshot(),
+      });
+      
+      const interval = setInterval(() => {
+        setResendTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      alert('Verification code sent! Please check your inbox.');
     } catch (error) {
       console.error('Resend error:', error);
       sendDebugLog('resend_verification_error', {
-        code: error?.code,
+        status: error?.status || error?.code,
         message: error?.message,
         navigator: getNavigatorSnapshot(),
       });
-      setError('Failed to resend verification email. Please try again.');
+      setError(getFriendlyAuthError(error));
     } finally {
       setLoading(false);
     }
@@ -308,19 +299,30 @@ export default function AuthPage() {
   const checkEmailVerified = async () => {
     setLoading(true);
     try {
-      const user = auth.currentUser;
-      if (user) {
-        await user.reload(); // Refresh user data
-        if (user.emailVerified) {
-          track('email_verified');
-          router.push('/chat');
-        } else {
-          setError('Email not verified yet. Please check your inbox and click the verification link.');
-        }
+      if (!otpCode.trim()) {
+        setError('Please enter the 6-digit code from your email.');
+        return;
+      }
+
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: formData.email,
+        token: otpCode.trim(),
+        type: 'email',
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.session) {
+        track('email_verified');
+        router.push('/chat');
+      } else {
+        setError('Invalid or expired code. Please try again.');
       }
     } catch (error) {
       console.error('Verification check error:', error);
-      setError('Failed to check verification status. Please try again.');
+      setError(getFriendlyAuthError(error));
     } finally {
       setLoading(false);
     }
@@ -360,23 +362,6 @@ export default function AuthPage() {
           </p>
         </div>
 
-        {firebaseConnectivity === 'unreachable' && (
-          <div style={{
-            background: '#fff8e1',
-            border: '1px solid #fbc02d',
-            borderRadius: '8px',
-            padding: '12px',
-            marginBottom: '20px',
-            color: '#5d4037',
-            fontSize: '14px',
-            lineHeight: 1.5
-          }}>
-            <strong>Heads up:</strong> This network cannot reach Google Firebase services right now.
-            This usually means Google domains are blocked locally. Please try a VPN, another network,
-            or share your console logs so we can investigate further.
-          </div>
-        )}
-
         {step === 'verify' ? (
           // Email Verification Step
           <div>
@@ -391,7 +376,7 @@ export default function AuthPage() {
               <div style={{ fontSize: '48px', marginBottom: '10px' }}>📧</div>
               <h3 style={{ color: '#2e7d32', marginBottom: '10px' }}>Check Your Email!</h3>
               <p style={{ color: '#555', fontSize: '14px', lineHeight: '1.6' }}>
-                We've sent a verification link to:<br/>
+                We've sent a 6-digit verification code to:<br/>
                 <strong>{formData.email}</strong>
               </p>
             </div>
@@ -407,9 +392,9 @@ export default function AuthPage() {
               </p>
               <ol style={{ fontSize: '14px', color: '#666', paddingLeft: '20px', lineHeight: '1.8' }}>
                 <li>Open your email inbox</li>
-                <li>Find the email from Firebase</li>
-                <li>Click the verification link</li>
-                <li>Come back and click "I've Verified My Email"</li>
+                <li>Find the email from Supabase (Forever English Corner)</li>
+                <li>Copy the 6-digit code</li>
+                <li>Enter it below and confirm</li>
               </ol>
             </div>
 
@@ -426,6 +411,39 @@ export default function AuthPage() {
                 {error}
               </div>
             )}
+
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '8px',
+                color: '#333',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}>
+                Verification Code
+              </label>
+              <input
+                type="text"
+                name="otp"
+                value={otpCode}
+                onChange={(e) => {
+                  setOtpCode(e.target.value);
+                  setError('');
+                }}
+                placeholder="Enter the 6-digit code"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: '2px solid #e0e0e0',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  transition: 'border-color 0.3s',
+                  outline: 'none'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+              />
+            </div>
 
             <button
               type="button"
@@ -444,7 +462,7 @@ export default function AuthPage() {
                 marginBottom: '15px'
               }}
             >
-              {loading ? 'Checking...' : '✓ I\'ve Verified My Email'}
+              {loading ? 'Checking...' : '✓ Verify and Continue'}
             </button>
 
             <button
@@ -477,11 +495,11 @@ export default function AuthPage() {
             }}>
               <button
                 type="button"
-                onClick={() => {
-                  auth.signOut();
+                onClick={async () => {
+                  await supabase.auth.signOut();
                   setStep('form');
-                  setVerificationSent(false);
-                  setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+                  setOtpCode('');
+                  setFormData({ name: '', email: '', password: '' });
                 }}
                 style={{
                   background: 'none',
@@ -561,37 +579,7 @@ export default function AuthPage() {
             />
           </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '8px',
-              color: '#333',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}>
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '2px solid #e0e0e0',
-                borderRadius: '8px',
-                fontSize: '14px',
-                transition: 'border-color 0.3s',
-                outline: 'none'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#667eea'}
-              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-            />
-          </div>
-
-          {isSignUp && (
+          {!isSignUp && (
             <div style={{ marginBottom: '20px' }}>
               <label style={{ 
                 display: 'block', 
@@ -600,14 +588,14 @@ export default function AuthPage() {
                 fontSize: '14px',
                 fontWeight: '500'
               }}>
-                Confirm Password
+                Password
               </label>
               <input
                 type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
+                name="password"
+                value={formData.password}
                 onChange={handleChange}
-                placeholder="Confirm your password"
+                placeholder="Enter your password"
                 style={{
                   width: '100%',
                   padding: '12px',
@@ -656,7 +644,7 @@ export default function AuthPage() {
             onMouseEnter={(e) => !loading && (e.target.style.transform = 'translateY(-2px)')}
             onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
           >
-            {loading ? 'Please wait...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+            {loading ? 'Please wait...' : (isSignUp ? 'Send Verification Code' : 'Sign In')}
           </button>
 
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -665,7 +653,7 @@ export default function AuthPage() {
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 setError('');
-                setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+                setFormData({ name: '', email: '', password: '' });
               }}
               style={{
                 background: 'none',

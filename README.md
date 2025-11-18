@@ -1,6 +1,13 @@
 # Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project now uses [Supabase Auth](https://supabase.com/auth) for sign up, sign in, and passwordless email links. Configure the client-side SDK by adding the following values to `.env.local` (or your hosting provider):
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+```
+
+Make sure the Supabase dashboard's site URL and redirect URLs include both your `/auth` and `/chat` routes so verification and magic-link flows can return to the app.
 
 ## Available Scripts
 
