@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   time VARCHAR(50) NOT NULL,
   location VARCHAR(255) NOT NULL,
   topic VARCHAR(255) NOT NULL,
-  max_participants INTEGER DEFAULT 20,
+  max_participants INTEGER DEFAULT 14,
   created_by UUID REFERENCES auth.users(id),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

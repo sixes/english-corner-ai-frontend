@@ -17,7 +17,7 @@ export default function Sessions() {
     time: '19:30 - 22:00',
     location: '',
     topic: '',
-    max_participants: 20
+    max_participants: 14
   });
 
   // Get auth token for API calls
@@ -167,7 +167,7 @@ export default function Sessions() {
           time: '19:30 - 22:00',
           location: '',
           topic: '',
-          max_participants: 20
+          max_participants: 14
         });
         showCelebration();
         await fetchSessions();

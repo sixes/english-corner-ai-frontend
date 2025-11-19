@@ -97,7 +97,7 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { date, time, location, topic, max_participants = 20 } = body;
+    const { date, time, location, topic, max_participants = 14 } = body;
 
     // Validate required fields
     if (!date || !time || !location || !topic) {
