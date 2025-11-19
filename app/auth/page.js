@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { track } from '@vercel/analytics';
 import { supabase } from '../../lib/supabase';
@@ -40,20 +40,29 @@ const sendDebugLog = async (event, details = {}) => {
   }
 };
 
-export default function AuthPage() {
+function AuthPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isSignUp, setIsSignUp] = useState(false);
   const [step, setStep] = useState('form'); // 'form' or 'verify'
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: ''
+    password: '',
+    gender: ''
   });
   const [otpCode, setOtpCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const getNetworkErrorMessage = () => 'Network error. Please check your connection.';
+
+  // Check for signup query parameter
+  useEffect(() => {
+    if (searchParams.get('signup') === 'true') {
+      setIsSignUp(true);
+    }
+  }, [searchParams]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -69,6 +78,11 @@ export default function AuthPage() {
       return false;
     }
 
+    if (isSignUp && !formData.gender) {
+      setError('Please select your gender');
+      return false;
+    }
+
     if (!formData.email) {
       setError('Please enter your email');
       return false;
@@ -80,16 +94,14 @@ export default function AuthPage() {
       return false;
     }
 
-    if (!isSignUp) {
-      if (!formData.password) {
-        setError('Please enter your password');
-        return false;
-      }
+    if (!formData.password) {
+      setError('Please enter your password');
+      return false;
+    }
 
-      if (formData.password.length < 6) {
-        setError('Password must be at least 6 characters');
-        return false;
-      }
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return false;
     }
 
     return true;
@@ -105,20 +117,14 @@ export default function AuthPage() {
     if (message.includes('already registered')) {
       return 'This email is already registered. Please sign in instead.';
     }
-    if (message.includes('password should be at least')) {
-      return 'Password is too weak. Please use a stronger password.';
-    }
-    if (message.includes('invalid login credentials')) {
-      return 'Incorrect email or password. Please try again.';
-    }
     if (message.includes('email not confirmed')) {
       return 'Please verify your email first. Check your inbox for the verification code.';
     }
     if (message.includes('session')) {
-      return 'We could not find an active session. Please sign in again or complete the verification from this device.';
+      return 'We could not find an active session. Please try again.';
     }
     if (error?.status === 429) {
-      return 'Too many failed attempts. Please try again later.';
+      return 'Too many attempts. Please try again later.';
     }
     if (message.includes('network')) {
       return getNetworkErrorMessage();
@@ -181,11 +187,14 @@ export default function AuthPage() {
         }
 
         setOtpCode('');
-        const { error } = await supabase.auth.signInWithOtp({
+        const { error } = await supabase.auth.signUp({
           email: formData.email,
+          password: formData.password,
           options: {
-            shouldCreateUser: true,
-            data: { full_name: formData.name.trim() },
+            data: {
+              full_name: formData.name.trim(),
+              gender: formData.gender
+            },
           },
         });
 
@@ -225,7 +234,7 @@ export default function AuthPage() {
         }
         
         track('user_signed_in', { method: 'email' });
-        router.push('/chat');
+        router.push('/');
       }
     } catch (error) {
       console.error('Auth error:', error);
@@ -307,7 +316,7 @@ export default function AuthPage() {
       const { data, error } = await supabase.auth.verifyOtp({
         email: formData.email,
         token: otpCode.trim(),
-        type: 'email',
+        type: 'signup',
       });
 
       if (error) {
@@ -316,7 +325,7 @@ export default function AuthPage() {
 
       if (data?.session) {
         track('email_verified');
-        router.push('/chat');
+        router.push('/');
       } else {
         setError('Invalid or expired code. Please try again.');
       }
@@ -495,11 +504,10 @@ export default function AuthPage() {
             }}>
               <button
                 type="button"
-                onClick={async () => {
-                  await supabase.auth.signOut();
+                onClick={() => {
                   setStep('form');
                   setOtpCode('');
-                  setFormData({ name: '', email: '', password: '' });
+                  setFormData({ name: '', email: '', password: '', gender: '' });
                 }}
                 style={{
                   background: 'none',
@@ -518,35 +526,93 @@ export default function AuthPage() {
           // Sign Up / Sign In Form
           <form onSubmit={handleSubmit}>
           {isSignUp && (
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '8px',
-                color: '#333',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}>
-                Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Enter your name"
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  border: '2px solid #e0e0e0',
-                  borderRadius: '8px',
+            <>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  color: '#333',
                   fontSize: '14px',
-                  transition: 'border-color 0.3s',
-                  outline: 'none'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-              />
-            </div>
+                  fontWeight: '500'
+                }}>
+                  Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="What should we call you?"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '2px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    transition: 'border-color 0.3s',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                  onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                />
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block',
+                  marginBottom: '8px',
+                  color: '#333',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}>
+                  Gender
+                </label>
+                <div style={{
+                  display: 'flex',
+                  gap: '10px',
+                  flexWrap: 'wrap'
+                }}>
+                  {[
+                    { value: 'male', label: 'Male', emoji: '👨' },
+                    { value: 'female', label: 'Female', emoji: '👩' },
+                    { value: 'undisclosed', label: 'Prefer not to say', emoji: '🤫' }
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, gender: option.value }))}
+                      style={{
+                        flex: '1',
+                        minWidth: '100px',
+                        padding: '12px 16px',
+                        border: formData.gender === option.value
+                          ? '2px solid #667eea'
+                          : '2px solid #e0e0e0',
+                        borderRadius: '8px',
+                        background: formData.gender === option.value
+                          ? 'linear-gradient(135deg, #667eea20 0%, #764ba220 100%)'
+                          : 'white',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        fontSize: '14px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <span style={{ fontSize: '20px' }}>{option.emoji}</span>
+                      <span style={{
+                        color: formData.gender === option.value ? '#667eea' : '#666',
+                        fontWeight: formData.gender === option.value ? '600' : '400'
+                      }}>
+                        {option.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
           )}
 
           <div style={{ marginBottom: '20px' }}>
@@ -579,37 +645,35 @@ export default function AuthPage() {
             />
           </div>
 
-          {!isSignUp && (
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '8px',
-                color: '#333',
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              color: '#333',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}>
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              style={{
+                width: '100%',
+                padding: '12px',
+                border: '2px solid #e0e0e0',
+                borderRadius: '8px',
                 fontSize: '14px',
-                fontWeight: '500'
-              }}>
-                Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  border: '2px solid #e0e0e0',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  transition: 'border-color 0.3s',
-                  outline: 'none'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-              />
-            </div>
-          )}
+                transition: 'border-color 0.3s',
+                outline: 'none'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#667eea'}
+              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+            />
+          </div>
 
           {error && (
             <div style={{
@@ -653,7 +717,7 @@ export default function AuthPage() {
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 setError('');
-                setFormData({ name: '', email: '', password: '' });
+                setFormData({ name: '', email: '', password: '', gender: '' });
               }}
               style={{
                 background: 'none',
@@ -688,5 +752,23 @@ export default function AuthPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      }}>
+        <div style={{ color: 'white', fontSize: '18px' }}>Loading...</div>
+      </div>
+    }>
+      <AuthPageContent />
+    </Suspense>
   );
 }

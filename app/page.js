@@ -5,6 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import './About.css';
 import ChatWidget from './components/ChatWidget';
+import Header from './components/Header';
 
 const Sessions = dynamic(() => import('./components/Sessions'), {
   ssr: false,
@@ -14,6 +15,7 @@ const Sessions = dynamic(() => import('./components/Sessions'), {
 export default function Home() {
   return (
     <div className="about-page">
+      <Header />
       <div className="about-header">
         <h1>Forever English Corner</h1>
         <p className="about-subtitle">

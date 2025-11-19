@@ -12,17 +12,38 @@
   font-size: 2rem;
   margin-bottom: 1.5rem;
   color: #333;
+  text-align: center;
 }
 
-.sessions-loading,
+.sessions-loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .sessions-error {
   text-align: center;
   padding: 2rem;
   font-size: 1.2rem;
-}
-
-.sessions-error {
   color: #d32f2f;
+  background: #ffebee;
+  border-radius: 12px;
 }
 
 .no-sessions {
@@ -30,8 +51,116 @@
   padding: 2rem;
   color: #666;
   font-style: italic;
+  background: #f5f5f5;
+  border-radius: 12px;
 }
 
+/* Create Session */
+.create-session-wrapper {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.create-session-btn {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.create-session-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.create-session-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  margin-bottom: 2rem;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.create-session-form h3 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  border-color: #667eea;
+  outline: none;
+}
+
+.submit-session-btn {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-session-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.submit-session-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Sessions Grid */
 .sessions-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -40,32 +169,85 @@
 
 .session-card {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .session-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
 .session-card.upcoming {
-  border-left: 4px solid #4CAF50;
+  border-top: 4px solid #4CAF50;
+}
+
+.session-card.upcoming.signed-up {
+  border-top-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
 }
 
 .session-card.past {
-  border-left: 4px solid #9E9E9E;
-  opacity: 0.85;
+  border-top: 4px solid #9E9E9E;
+  opacity: 0.75;
+}
+
+.signed-up-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
 
 .session-header h3 {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   margin-bottom: 1rem;
   color: #333;
   line-height: 1.4;
-  min-height: 2.8rem;
+  padding-right: 80px;
+}
+
+.spots-warning {
+  display: inline-block;
+  background: #fff3cd;
+  color: #856404;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.spots-full {
+  display: inline-block;
+  background: #ffebee;
+  color: #c62828;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
 }
 
 .session-details {
@@ -76,23 +258,147 @@
   margin: 0.5rem 0;
   color: #555;
   font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detail-icon {
+  font-size: 1rem;
+}
+
+.participant-count {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 1.1rem;
+}
+
+/* Participants */
+.participants-preview {
+  margin-bottom: 1rem;
+}
+
+.show-participants-btn {
+  background: none;
+  border: 1px solid #e0e0e0;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #666;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.show-participants-btn:hover {
+  background: #f5f5f5;
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.participants-list {
+  margin-top: 0.75rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.participant-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.participant-item:last-child {
+  border-bottom: none;
+}
+
+.participant-emoji {
+  font-size: 1.2rem;
+}
+
+.participant-name {
+  font-size: 0.9rem;
+  color: #333;
+}
+
+/* Action Buttons */
+.session-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .signup-btn {
   width: 100%;
-  padding: 0.8rem;
-  background: #4CAF50;
+  padding: 0.9rem;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s ease;
 }
 
-.signup-btn:hover {
-  background: #45a049;
+.signup-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+}
+
+.signup-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cancel-signup-btn {
+  width: 100%;
+  padding: 0.9rem;
+  background: #fff;
+  color: #f44336;
+  border: 2px solid #f44336;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-signup-btn:hover:not(:disabled) {
+  background: #f44336;
+  color: white;
+}
+
+.cancel-signup-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancel-session-btn {
+  padding: 0.5rem;
+  background: none;
+  color: #999;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-session-btn:hover:not(:disabled) {
+  background: #fee;
+  border-color: #f44336;
+  color: #f44336;
 }
 
 .more-sessions {
@@ -102,6 +408,29 @@
   font-style: italic;
 }
 
+.past-sessions {
+  opacity: 0.8;
+}
+
+/* Confetti Animation */
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  z-index: 9999;
+  animation: fall 3s linear forwards;
+  border-radius: 2px;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Mobile Responsive */
 @media (max-width: 768px) {
   .sessions-grid {
     grid-template-columns: 1fr;
@@ -109,5 +438,18 @@
 
   .sessions-section h2 {
     font-size: 1.5rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .session-header h3 {
+    padding-right: 0;
+    margin-top: 2rem;
+  }
+
+  .create-session-btn {
+    width: 100%;
   }
 }
