@@ -84,14 +84,17 @@ function AuthPageContent() {
     }
 
     if (!formData.email) {
-      setError('Please enter your email');
+      setError(isSignUp ? 'Please enter your email' : 'Please enter your email or name');
       return false;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Please enter a valid email address');
-      return false;
+    // Only validate email format during signup
+    if (isSignUp) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setError('Please enter a valid email address');
+        return false;
+      }
     }
 
     if (!formData.password) {
@@ -217,8 +220,45 @@ function AuthPageContent() {
 
         track('user_signed_up', { method: 'email_otp' });
       } else {
+        // Sign in - support both email and name
+        let emailToUse = formData.email;
+
+        // Check if input is a name (doesn't contain @)
+        if (!formData.email.includes('@')) {
+          try {
+            const response = await fetch('/api/auth/get-email-by-name', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                name: formData.email,
+              }),
+            });
+
+            if (!response.ok) {
+              const payload = await response.json().catch(() => ({}));
+              if (response.status === 404) {
+                setError('No account found with this name. Please check your name or use your email.');
+              } else {
+                setError(payload?.error || 'Failed to find account.');
+              }
+              setLoading(false);
+              return;
+            }
+
+            const { email } = await response.json();
+            emailToUse = email;
+          } catch (lookupError) {
+            console.error('Name lookup failed:', lookupError);
+            setError('Failed to find account. Please try using your email address.');
+            setLoading(false);
+            return;
+          }
+        }
+
         const { data, error } = await supabase.auth.signInWithPassword({
-          email: formData.email,
+          email: emailToUse,
           password: formData.password,
         });
 
@@ -232,7 +272,7 @@ function AuthPageContent() {
           setLoading(false);
           return;
         }
-        
+
         track('user_signed_in', { method: 'email' });
         router.push('/');
       }
@@ -616,21 +656,21 @@ function AuthPageContent() {
           )}
 
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ 
-              display: 'block', 
+            <label style={{
+              display: 'block',
               marginBottom: '8px',
               color: '#333',
               fontSize: '14px',
               fontWeight: '500'
             }}>
-              Email
+              {isSignUp ? 'Email' : 'Email or Name'}
             </label>
             <input
-              type="email"
+              type={isSignUp ? "email" : "text"}
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="Enter your email"
+              placeholder={isSignUp ? "Enter your email" : "Enter your email or name"}
               style={{
                 width: '100%',
                 padding: '12px',
