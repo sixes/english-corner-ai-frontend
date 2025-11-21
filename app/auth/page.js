@@ -44,13 +44,14 @@ function AuthPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isSignUp, setIsSignUp] = useState(false);
-  const [step, setStep] = useState('form'); // 'form' or 'verify'
+  const [step, setStep] = useState('form'); // 'form', 'verify', or 'reset-password'
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     gender: ''
   });
+  const [resetEmail, setResetEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -377,6 +378,55 @@ function AuthPageContent() {
     }
   };
 
+  const handlePasswordResetRequest = async (e) => {
+    e.preventDefault();
+
+    if (!resetEmail.trim()) {
+      setError('Please enter your email address.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(resetEmail)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      sendDebugLog('password_reset_requested', {
+        emailDomain: resetEmail.includes('@') ? resetEmail.split('@')[1] : null,
+      });
+
+      alert(`Password reset email sent to ${resetEmail}. Please check your inbox and click the link to reset your password.`);
+
+      // Go back to sign in form
+      setStep('form');
+      setResetEmail('');
+
+      track('password_reset_requested');
+    } catch (error) {
+      console.error('Password reset error:', error);
+      sendDebugLog('password_reset_error', {
+        status: error?.status || error?.code,
+        message: error?.message,
+      });
+      setError(getFriendlyAuthError(error));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -404,8 +454,10 @@ function AuthPageContent() {
             Forever English Corner
           </h1>
           <p style={{ color: '#666', fontSize: '14px' }}>
-            {step === 'verify' 
-              ? 'Verify your email' 
+            {step === 'verify'
+              ? 'Verify your email'
+              : step === 'reset-password'
+              ? 'Reset your password'
               : (isSignUp ? 'Create your account' : 'Welcome back!')
             }
           </p>
@@ -562,6 +614,114 @@ function AuthPageContent() {
               </button>
             </div>
           </div>
+        ) : step === 'reset-password' ? (
+          // Password Reset Request Step
+          <form onSubmit={handlePasswordResetRequest}>
+            <div style={{
+              background: '#fff3e0',
+              border: '1px solid #ff9800',
+              borderRadius: '8px',
+              padding: '20px',
+              marginBottom: '20px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '10px' }}>🔑</div>
+              <h3 style={{ color: '#e65100', marginBottom: '10px' }}>Forgot Your Password?</h3>
+              <p style={{ color: '#555', fontSize: '14px', lineHeight: '1.6' }}>
+                No worries! Enter your email address and we'll send you a link to reset your password.
+              </p>
+            </div>
+
+            {error && (
+              <div style={{
+                background: '#fee',
+                border: '1px solid #fcc',
+                borderRadius: '8px',
+                padding: '12px',
+                marginBottom: '20px',
+                color: '#c33',
+                fontSize: '14px'
+              }}>
+                {error}
+              </div>
+            )}
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '8px',
+                color: '#333',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}>
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={resetEmail}
+                onChange={(e) => {
+                  setResetEmail(e.target.value);
+                  setError('');
+                }}
+                placeholder="Enter your email"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: '2px solid #e0e0e0',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  transition: 'border-color 0.3s',
+                  outline: 'none'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '14px',
+                background: loading ? '#ccc' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                marginBottom: '15px'
+              }}
+            >
+              {loading ? 'Sending...' : 'Send Reset Link'}
+            </button>
+
+            <div style={{
+              textAlign: 'center',
+              paddingTop: '20px',
+              borderTop: '1px solid #e0e0e0'
+            }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setStep('form');
+                  setResetEmail('');
+                  setError('');
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#666',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  textDecoration: 'underline'
+                }}
+              >
+                ← Back to Sign In
+              </button>
+            </div>
+          </form>
         ) : (
           // Sign Up / Sign In Form
           <form onSubmit={handleSubmit}>
@@ -686,15 +846,35 @@ function AuthPageContent() {
           </div>
 
           <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              marginBottom: '8px',
-              color: '#333',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}>
-              Password
-            </label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <label style={{
+                color: '#333',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}>
+                Password
+              </label>
+              {!isSignUp && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep('reset-password');
+                    setError('');
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#667eea',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    padding: '0'
+                  }}
+                >
+                  Forgot Password?
+                </button>
+              )}
+            </div>
             <input
               type="password"
               name="password"
