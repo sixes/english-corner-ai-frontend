@@ -440,22 +440,45 @@ export default function Sessions() {
         <section className="sessions-section past-sessions">
           <h2>📚 Past Sessions</h2>
           <div className="sessions-grid">
-            {pastSessions.slice(0, 6).map((session) => (
-              <div key={session.id} className="session-card past">
-                <div className="session-header">
-                  <h3>{session.topic}</h3>
+            {pastSessions.map((session) => {
+              const isExpanded = expandedSession === session.id;
+              
+              return (
+                <div key={session.id} className="session-card past">
+                  <div className="session-header">
+                    <h3>{session.topic}</h3>
+                  </div>
+                  <div className="session-details">
+                    <p><span className="detail-icon">📅</span> {formatDate(session.date)}</p>
+                    <p><span className="detail-icon">📍</span> {session.location}</p>
+                    <p><span className="detail-icon">👥</span> {session.participants.length} attended</p>
+                  </div>
+                  
+                  {/* Participants for Past Sessions */}
+                  {session.participants.length > 0 && (
+                    <div className="participants-preview">
+                      <button
+                        className="show-participants-btn"
+                        onClick={() => setExpandedSession(isExpanded ? null : session.id)}
+                      >
+                        {isExpanded ? 'Hide' : 'Show'} participants ({session.participants.length})
+                      </button>
+                      {isExpanded && (
+                        <div className="participants-list">
+                          {session.participants.map((p, idx) => (
+                            <div key={idx} className="participant-item">
+                              <span className="participant-emoji">{getGenderEmoji(p.user_gender)}</span>
+                              <span className="participant-name">{p.user_name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <div className="session-details">
-                  <p><span className="detail-icon">📅</span> {formatDate(session.date)}</p>
-                  <p><span className="detail-icon">📍</span> {session.location}</p>
-                  <p><span className="detail-icon">👥</span> {session.participants.length} attended</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-          {pastSessions.length > 6 && (
-            <p className="more-sessions">+ {pastSessions.length - 6} more past sessions</p>
-          )}
         </section>
       )}
     </div>

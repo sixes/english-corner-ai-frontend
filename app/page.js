@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import './About.css';
 import ChatWidget from './components/ChatWidget';
 import Header from './components/Header';
+import Navigation from './components/Navigation';
 
 const Sessions = dynamic(() => import('./components/Sessions'), {
   ssr: false,
@@ -16,6 +17,7 @@ export default function Home() {
   return (
     <div className="about-page">
       <Header />
+      <Navigation />
       <div className="about-header">
         <h1>Forever English Corner</h1>
         <p className="about-subtitle">
@@ -25,11 +27,13 @@ export default function Home() {
 
       <div className="about-content">
         {/* Sessions Section - First */}
-        <Sessions />
+        <div id="sessions">
+          <Sessions />
+        </div>
         
         {/* Divider */}
         <div style={{ margin: '3rem 0', borderTop: '2px solid #e0e0e0' }}></div>
-        <section className="about-section">
+        <section id="what-we-offer" className="about-section">
           <h2>🎯 What We Offer</h2>
           <div className="content-grid">
             <div className="feature-card">
@@ -51,7 +55,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="about-section">
+        <section id="location" className="about-section">
           <h2>📍 Location & Schedule</h2>
           <div className="info-grid">
             <div className="info-card">
@@ -85,7 +89,7 @@ export default function Home() {
           </p>
         </section>
 
-        <section className="about-section">
+        <section id="community" className="about-section">
             <h2>👥 Our International Community</h2>
           <p>Join our diverse community with members from around the world:</p>
           <div className="countries-grid">
@@ -115,7 +119,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="about-section">
+        <section id="join" className="about-section">
           <h2>🚀 How to Join</h2>
           <div className="steps-container">
             <div className="step">
@@ -166,7 +170,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="about-section">
+        <section id="why-choose" className="about-section">
           <h2>🌟 Why Choose Forever English Corner?</h2>
           <div className="benefits-grid">
             <div className="benefit-item">
@@ -196,7 +200,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="about-section">
+        <section id="founders" className="about-section">
           <h2>👥 About Our Founders</h2>
           <div className="founder-cards">
             <div className="founder-card">
@@ -234,7 +238,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="about-section">
+        <section id="alternatives" className="about-section">
           <h2>🌐 Not Quite Ready? Check These Out!</h2>
           <p className="alternative-intro">
             If you don't currently meet our English requirements, don't worry! We have some wonderful 
@@ -266,7 +270,7 @@ export default function Home() {
           </p>
         </section>
 
-        <section className="about-section cta-section">
+        <section id="faq" className="about-section cta-section">
           <h2>🤖 Still Have Questions?</h2>
           <p>
             Our AI assistant is here to help! Ask about session schedules, topics, 
