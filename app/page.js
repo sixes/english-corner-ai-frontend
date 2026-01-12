@@ -196,6 +196,76 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="about-section">
+          <h2>👥 About Our Founders</h2>
+          <div className="founder-cards">
+            <div className="founder-card">
+              <div className="founder-emoji">👨‍💼</div>
+              <h3>Uncle Eric - The Visionary</h3>
+              <p>
+                Forever English Corner was founded by <strong>Uncle Eric</strong>, a passionate and dedicated enthusiast 
+                who has been running these gatherings since <strong>2017</strong>. Even during the challenging COVID-19 pandemic, 
+                Uncle Eric never suspended these events—demonstrating unwavering commitment to the community. 
+                It was during this period that <strong>Tony</strong> joined the gatherings for the first time!
+              </p>
+            </div>
+            <div className="founder-card">
+              <div className="founder-emoji">💻</div>
+              <h3>Tony - The Organizer & Builder</h3>
+              <p>
+                Due to Uncle Eric's busy schedule, <strong>Tony</strong> now takes charge of organizing our gatherings. 
+                Tony is a seasoned software engineer with extensive experience in the gaming and financial sectors. 
+                He built this website to make it easier for everyone to join us, and is currently developing 
+                a sophisticated financial website for investors. With Tony's tech expertise and passion, 
+                we're bringing Forever English Corner into the digital age! 🚀
+              </p>
+            </div>
+            <div className="founder-card mystery-card">
+              <div className="founder-emoji">🤔</div>
+              <h3>Daniel - The Mystery Organizer</h3>
+              <p>
+                We'd love to tell you more about <strong>Daniel</strong>, who ran our gatherings before Tony joined! 
+                However, Tony has never met him in person, so we don't have much information to share. 
+                <strong> If you know Daniel or have stories about him, we'd be thrilled to hear from you!</strong> 
+                Your insights would help us complete this part of our community's history. 
+                Reach out through our chat or WeChat!
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="about-section">
+          <h2>🌐 Not Quite Ready? Check These Out!</h2>
+          <p className="alternative-intro">
+            If you don't currently meet our English requirements, don't worry! We have some wonderful 
+            alternative English corners you should check out:
+          </p>
+          <div className="alternatives-grid">
+            <div className="alternative-card">
+              <h3>📱 Evergreen English Corner</h3>
+              <p>
+                A great option for different levels of English learners.
+              </p>
+              <p className="contact-info">
+                <strong>WeChat Official Account:</strong> IVY英语角
+              </p>
+            </div>
+            <div className="alternative-card">
+              <h3>🎯 Trivial English Club</h3>
+              <p>
+                Another fantastic community to explore and practice with.
+              </p>
+              <p className="contact-info">
+                <strong>Find it on:</strong> Quhuo (在取伙上搜索)
+              </p>
+            </div>
+          </div>
+          <p className="alternatives-note">
+            💡 <em>We'll have you meeting our requirements in no time! Feel free to ask our AI assistant 
+            for tips on improving your English skills.</em>
+          </p>
+        </section>
+
         <section className="about-section cta-section">
           <h2>🤖 Still Have Questions?</h2>
           <p>

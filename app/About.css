@@ -347,6 +347,120 @@
   margin: 0;
 }
 
+.founder-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.founder-card {
+  background: linear-gradient(135deg, #e1f5fe 0%, #f1f8e9 100%);
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  border: 2px solid #b3e5fc;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.founder-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.founder-emoji {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.founder-card h3 {
+  font-size: 1.5rem;
+  margin: 15px 0;
+  color: #01579b;
+  font-weight: 600;
+}
+
+.founder-card p {
+  color: #555;
+  line-height: 1.8;
+  margin: 0;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.founder-card strong {
+  color: #01579b;
+  font-weight: 600;
+}
+
+.mystery-card {
+  background: linear-gradient(135deg, #ffe0b2 0%, #fff3e0 100%);
+  border: 2px dashed #ffb74d;
+}
+
+.mystery-card h3 {
+  color: #e65100;
+}
+
+.alternative-intro {
+  font-size: 1.1rem;
+  color: #555;
+  text-align: center;
+  margin-bottom: 30px;
+  line-height: 1.8;
+}
+
+.alternatives-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.alternative-card {
+  background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+  padding: 25px;
+  border-radius: 15px;
+  border: 2px solid #fff176;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.alternative-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.alternative-card h3 {
+  font-size: 1.3rem;
+  margin: 0 0 15px 0;
+  color: #f57f17;
+  font-weight: 600;
+}
+
+.alternative-card p {
+  color: #666;
+  line-height: 1.6;
+  margin: 10px 0;
+}
+
+.contact-info {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: 500;
+  margin-top: 15px;
+  color: #d84315;
+}
+
+.alternatives-note {
+  text-align: center;
+  color: #666;
+  margin: 20px 0 0 0;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
 .cta-section {
   text-align: center;
   background: linear-gradient(135deg, #e8f5e8 0%, #f3e5f5 100%);
@@ -435,5 +549,38 @@
   
   .step-number {
     margin: 0 0 15px 0;
+  }
+
+  .founder-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .founder-card {
+    padding: 20px;
+  }
+
+  .founder-emoji {
+    font-size: 2.5rem;
+  }
+
+  .founder-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .founder-card p {
+    text-align: center;
+    font-size: 0.95rem;
+  }
+
+  .alternatives-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .alternative-intro {
+    font-size: 1rem;
+  }
+
+  .alternatives-note {
+    font-size: 0.9rem;
   }
 }
