@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 
 const SEOHead = ({ 
-  title = "Forever English Corner AI - Free English Learning & Practice in Shenzhen",
-  description = "Join Forever English Corner in Shenzhen! Free weekly English practice sessions at Futian Station. AI-powered chat assistant to help with English learning, session info, and community questions. Over 7 years of helping English learners!",
-  keywords = "English Corner Shenzhen, English practice, language exchange, Futian Station, English learning, AI assistant, conversation practice, international community, free English classes",
-  canonical = "https://www.englishcorner.cyou",
-  ogImage = "https://www.englishcorner.cyou/og-image.jpg"
+  title = "Forever English Corner AI - 深圳英语角 | Free English Learning & Practice in Shenzhen",
+  description = "Join Forever English Corner (深圳英语角) in Shenzhen! Free weekly English practice sessions at Futian Station. AI-powered chat assistant to help with English learning, session info, and community questions. 7+ years of English learning community!",
+  keywords = "英语角, 深圳英语角, English Corner Shenzhen, English practice, language exchange, Futian Station, English learning, AI assistant, conversation practice, international community, free English classes, 英语学习, 英语交流",
+  canonical = "https://www.englishcorner.pro",
+  ogImage = "https://www.englishcorner.pro/og-image.jpg"
 }) => {
   useEffect(() => {
     // Update document title
