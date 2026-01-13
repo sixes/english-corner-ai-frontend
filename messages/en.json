@@ -6,15 +6,15 @@
     "signOut": "Logout"
   },
   "navigation": {
-    "sessions": "📅 Sessions",
-    "whatWeOffer": "🎯 What We Offer",
-    "location": "📍 Location",
-    "community": "🌍 Community",
-    "join": "🚀 How to Join",
-    "whyChoose": "🌟 Why Choose Us",
-    "founders": "👥 Founders",
-    "alternatives": "🌐 Alternatives",
-    "faq": "🤖 Questions?"
+    "sessions": "Sessions",
+    "whatWeOffer": "What We Offer",
+    "location": "Location",
+    "community": "Community",
+    "join": "How to Join",
+    "whyChoose": "Why Choose Us",
+    "founders": "Founders",
+    "alternatives": "Alternatives",
+    "faq": "Questions?"
   },
   "home": {
     "title": "Forever English Corner",

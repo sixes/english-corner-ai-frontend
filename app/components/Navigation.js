@@ -40,15 +40,15 @@ export default function Navigation() {
   };
 
   const navItems = [
-    { id: 'sessions', label: t('sessions') },
-    { id: 'what-we-offer', label: t('whatWeOffer') },
-    { id: 'location', label: t('location') },
-    { id: 'community', label: t('community') },
-    { id: 'join', label: t('join') },
-    { id: 'why-choose', label: t('whyChoose') },
-    { id: 'founders', label: t('founders') },
-    { id: 'alternatives', label: t('alternatives') },
-    { id: 'faq', label: t('faq') },
+    { id: 'sessions', label: 'sessions', icon: '📅' },
+    { id: 'what-we-offer', label: 'whatWeOffer', icon: '🎯' },
+    { id: 'location', label: 'location', icon: '📍' },
+    { id: 'community', label: 'community', icon: '🌍' },
+    { id: 'join', label: 'join', icon: '🚀' },
+    { id: 'why-choose', label: 'whyChoose', icon: '🌟' },
+    { id: 'founders', label: 'founders', icon: '👥' },
+    { id: 'alternatives', label: 'alternatives', icon: '🌐' },
+    { id: 'faq', label: 'faq', icon: '🤖' },
   ];
 
   return (
@@ -70,7 +70,8 @@ export default function Navigation() {
                   className={`nav-link ${activeSection === item.id ? 'active' : ''}`}
                   onClick={() => scrollToSection(item.id)}
                 >
-                  {item.label}
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-text">{t(item.label)}</span>
                 </button>
               </li>
             ))}

@@ -6,15 +6,15 @@
     "signOut": "退出"
   },
   "navigation": {
-    "sessions": "📅 活动场次",
-    "whatWeOffer": "🎯 我们提供什么",
-    "location": "📍 地点",
-    "community": "🌍 社区",
-    "join": "🚀 如何加入",
-    "whyChoose": "🌟 选择我们",
-    "founders": "👥 创始人",
-    "alternatives": "🌐 其他选择",
-    "faq": "🤖 常见问题"
+    "sessions": "活动场次",
+    "whatWeOffer": "我们提供什么",
+    "location": "地点",
+    "community": "社区",
+    "join": "如何加入",
+    "whyChoose": "选择我们",
+    "founders": "创始人",
+    "alternatives": "其他选择",
+    "faq": "常见问题"
   },
   "home": {
     "title": "Forever English Corner",

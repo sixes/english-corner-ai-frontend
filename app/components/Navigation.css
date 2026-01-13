@@ -63,6 +63,13 @@
   transition: all 0.3s ease;
   border-bottom: 2px solid transparent;
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-icon {
+  font-size: 1.1em;
 }
 
 .nav-link:hover {
@@ -80,6 +87,10 @@
 @media (max-width: 1024px) {
   .page-nav {
     top: 50px;
+  }
+
+  .nav-container {
+    justify-content: flex-end;
   }
 
   .nav-toggle {
@@ -114,19 +125,21 @@
 
   .nav-link {
     width: 100%;
-    text-align: left;
+    text-align: right;
     padding: 14px 20px;
     border-bottom: none;
-    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    justify-content: flex-start;
+    flex-direction: row-reverse;
   }
 
   .nav-link:hover {
-    border-left-color: #667eea;
+    border-right-color: #667eea;
     background: #f5f7fa;
   }
 
   .nav-link.active {
-    border-left-color: #667eea;
+    border-right-color: #667eea;
     background: #f5f7fa;
   }
 }
