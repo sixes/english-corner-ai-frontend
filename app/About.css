@@ -505,7 +505,11 @@
   }
 
   .header-logo {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
   }
 
   .auth-btn {
@@ -517,13 +521,21 @@
     display: none;
   }
 
+  .header-nav {
+    gap: 5px;
+  }
+
+  .auth-buttons {
+    gap: 5px;
+  }
+
   .about-page {
     padding: 0px 10px 10px 10px;
   }
   
   .about-header {
     padding: 50px 15px 20px 15px;
-    margin-top: 0;
+    margin-top: 90px;
     margin-bottom: 20px;
   }
   
@@ -553,12 +565,13 @@
   }
   
   .countries-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
   }
   
   .step {
     flex-direction: column;
-    text-align: center;
+    text-align: left;
+    align-items: center;
   }
   
   .step-number {
@@ -582,7 +595,7 @@
   }
 
   .founder-card p {
-    text-align: center;
+    text-align: left;
     font-size: 0.95rem;
   }
 

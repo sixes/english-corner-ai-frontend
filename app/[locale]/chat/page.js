@@ -11,8 +11,8 @@ import {
 } from "@chatscope/chat-ui-kit-react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
 import { track } from "@vercel/analytics";
-import ContentHeader from '../components/ContentHeader';
-import FloatingMenu from '../components/FloatingMenu';
+import ContentHeader from '../../components/ContentHeader';
+import FloatingMenu from '../../components/FloatingMenu';
 
 const BACKEND_URL = "/api/chat"; // Use local proxy to avoid CORS
 

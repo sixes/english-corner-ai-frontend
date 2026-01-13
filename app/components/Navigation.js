@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import './Navigation.css';
 
 export default function Navigation() {
+  const t = useTranslations('navigation');
   const [activeSection, setActiveSection] = useState('sessions');
   const [isOpen, setIsOpen] = useState(false);
 
@@ -38,15 +40,15 @@ export default function Navigation() {
   };
 
   const navItems = [
-    { id: 'sessions', label: '📅 Sessions' },
-    { id: 'what-we-offer', label: '🎯 What We Offer' },
-    { id: 'location', label: '📍 Location' },
-    { id: 'community', label: '🌍 Community' },
-    { id: 'join', label: '🚀 How to Join' },
-    { id: 'why-choose', label: '🌟 Why Choose Us' },
-    { id: 'founders', label: '👥 Founders' },
-    { id: 'alternatives', label: '🌐 Alternatives' },
-    { id: 'faq', label: '🤖 Questions?' },
+    { id: 'sessions', label: t('sessions') },
+    { id: 'what-we-offer', label: t('whatWeOffer') },
+    { id: 'location', label: t('location') },
+    { id: 'community', label: t('community') },
+    { id: 'join', label: t('join') },
+    { id: 'why-choose', label: t('whyChoose') },
+    { id: 'founders', label: t('founders') },
+    { id: 'alternatives', label: t('alternatives') },
+    { id: 'faq', label: t('faq') },
   ];
 
   return (

@@ -1,0 +1,188 @@
+{
+  "header": {
+    "logo": "Forever English Corner",
+    "signIn": "登录",
+    "signUp": "注册",
+    "signOut": "退出"
+  },
+  "navigation": {
+    "sessions": "📅 活动场次",
+    "whatWeOffer": "🎯 我们提供什么",
+    "location": "📍 地点",
+    "community": "🌍 社区",
+    "join": "🚀 如何加入",
+    "whyChoose": "🌟 选择我们",
+    "founders": "👥 创始人",
+    "alternatives": "🌐 其他选择",
+    "faq": "🤖 常见问题"
+  },
+  "home": {
+    "title": "Forever English Corner",
+    "subtitle": "自2017年起深圳的英语练习社区",
+    "loadingSessions": "加载活动中...",
+    "sections": {
+      "whatWeOffer": {
+        "title": "🎯 我们提供什么",
+        "selfIntro": {
+          "title": "自我介绍练习",
+          "desc": "30分钟的结构化口语练习，建立自信"
+        },
+        "games": {
+          "title": "互动游戏",
+          "desc": "改编自 \"Two Truths and a Lie\" 的 \"One Truth and a Lie\""
+        },
+        "topics": {
+          "title": "主题讨论",
+          "desc": "每周不同主题的对话讨论"
+        },
+        "cultural": {
+          "title": "文化交流",
+          "desc": "结识来自世界各地的朋友，分享经历"
+        }
+      },
+      "location": {
+        "title": "📍 地点与时间",
+        "weekly": {
+          "title": "每周活动",
+          "frequency": "每周一次",
+          "days": "周三 或 周五",
+          "time": "19:30 - 22:00 (2.5小时)",
+          "free": "永远免费加入！"
+        },
+        "wednesday": {
+          "title": "周三地点",
+          "name": "星巴克 (联通大厦店)",
+          "landmark": "近福田站",
+          "details": [
+            "地铁2、3、11号线交汇处",
+            "中心商务区位置"
+          ]
+        },
+        "friday": {
+          "title": "周五地点",
+          "name": "星巴克 (深圳星河苏活购物公园店)",
+          "location": "星河COCOPARK购物公园",
+          "details": [
+            "请查看微信群获取每周更新",
+            "地点可能会偶尔变动"
+          ]
+        },
+        "note": "📢 请查看我们的微信群以确切了解每周的日期和地点"
+      },
+      "community": {
+        "title": "👥 我们的国际社区",
+        "intro": "加入我们来自世界各地的多元化社区："
+      },
+      "join": {
+        "title": "🚀 如何加入",
+        "step1": {
+          "title": "关注微信公众号",
+          "desc": "搜索："
+        },
+        "step2": {
+          "title": "添加志愿者联系方式",
+          "desc": "扫描二维码添加我们的志愿者"
+        },
+        "step3": {
+          "title": "发送自我介绍",
+          "desc": "录制一段1分钟的自我介绍语音"
+        },
+        "step4": {
+          "title": "获得邀请",
+          "desc": "收到 \"Language Exchange 2\" 微信群的邀请"
+        },
+        "step5": {
+          "title": "加入我们！",
+          "desc": "阅读群公告并参加我们的下次活动"
+        },
+        "requirements": {
+          "title": "要求",
+          "list": [
+            "基本的英语沟通能力",
+            "年龄18岁以上（我们有80多岁的成员！）",
+            "尊重和友好的态度",
+            "愿意练习和学习"
+          ]
+        }
+      },
+      "whyChoose": {
+        "title": "🌟 为什么选择 Forever English Corner？",
+        "established": {
+          "title": "🕰️ 成熟的社区",
+          "desc": "自2017年以来持续运营，保持高质量"
+        },
+        "international": {
+          "title": "🌍 国际化环境",
+          "desc": "与母语人士和全球学习者一起练习"
+        },
+        "free": {
+          "title": "💰 完全免费",
+          "desc": "无费用，无隐形消费 - 只要人来就行！"
+        },
+        "location": {
+          "title": "📍 绝佳位置",
+          "desc": "多条地铁线路可达"
+        },
+        "engaging": {
+          "title": "🎭 有趣的活动",
+          "desc": "结构化的游戏和讨论保持趣味性"
+        },
+        "supportive": {
+          "title": "🤝 支持性氛围",
+          "desc": "适合所有水平的友好环境"
+        }
+      },
+      "founders": {
+        "title": "👥 关于我们的创始人",
+        "eric": {
+          "title": "Uncle Eric - 愿景家",
+          "desc1": "Forever English Corner 由 ",
+          "desc2": " 创立，他是一位充满热情和奉献精神的爱好者，自 ",
+          "desc3": " 年以来一直运营着这些聚会。即使在充满挑战的 COVID-19 疫情期间，Uncle Eric 也从未暂停过活动——展示了对社区的坚定承诺。正是在这段时期，",
+          "desc4": " 第一次参加了聚会！"
+        },
+        "tony": {
+          "title": "Tony - 组织者与建设者",
+          "desc1": "由于 Uncle Eric 工作繁忙，",
+          "desc2": " 现在负责组织我们的聚会。Tony 是一位资深软件工程师，在游戏和金融领域拥有丰富经验。他建立了这个网站，让大家更容易加入我们，目前正在为投资者开发一个复杂的金融网站。凭借 Tony 的技术专长和热情，我们将 Forever English Corner 带入数字时代！🚀"
+        },
+        "daniel": {
+          "title": "Daniel - 神秘组织者",
+          "desc": "如果你知道 **Daniel** 或者有关于他的故事，**我们非常希望能收到你的来信！** 你的见解将帮助我们完成这部分社区历史。请通过我们的聊天或微信联系！"
+        }
+      },
+      "alternatives": {
+        "title": "🌐 还没准备好？看看这些！",
+        "intro": "如果你目前不符合我们的英语要求，别担心！我们有一些很棒的替代英语角供你参考：",
+        "evergreen": {
+          "title": "📱 Evergreen English Corner",
+          "desc": "适合不同水平英语学习者的绝佳选择。",
+          "contact": "微信公众号："
+        },
+        "trivial": {
+          "title": "🎯 Trivial English Club",
+          "desc": "另一个值得探索和练习的精彩社区。",
+          "contact": "在取伙上搜索："
+        },
+        "note": "💡 我们相信你很快就能达到要求！随时向我们的 AI 助手咨询提高英语技能的建议。"
+      },
+      "faq": {
+        "title": "🤖 还有问题？",
+        "text": "我们的 AI 助手随叫随到！询问有关活动时间表、话题、地点详情或任何其他关于 Forever English Corner 的问题。",
+        "button": "与 AI 助手聊天"
+      }
+    }
+  },
+  "countries": {
+    "Germany": "德国",
+    "Australia": "澳大利亚",
+    "Mongolia": "蒙古",
+    "South Korea": "韩国",
+    "Hong Kong": "香港",
+    "Taiwan": "台湾",
+    "United Kingdom": "英国",
+    "United States": "美国",
+    "Russia": "俄罗斯",
+    "China": "中国"
+  }
+}

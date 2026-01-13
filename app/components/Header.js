@@ -1,11 +1,13 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useRouter } from '../../lib/navigation';
+import { useTranslations } from 'next-intl';
 import { supabase } from '../../lib/supabase';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Header() {
+  const t = useTranslations('header');
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,10 +40,12 @@ export default function Header() {
     <header className="site-header">
       <div className="header-content">
         <Link href="/" className="header-logo">
-          Forever English Corner
+          {t('logo')}
         </Link>
 
         <nav className="header-nav">
+          <LanguageSwitcher />
+
           {loading ? (
             <span className="auth-loading">...</span>
           ) : user ? (
@@ -50,16 +54,16 @@ export default function Header() {
                 {user.user_metadata?.full_name || user.email?.split('@')[0]}
               </span>
               <button onClick={handleSignOut} className="auth-btn sign-out-btn">
-                Sign Out
+                {t('signOut')}
               </button>
             </div>
           ) : (
             <div className="auth-buttons">
               <Link href="/auth" className="auth-btn sign-in-btn">
-                Sign In
+                {t('signIn')}
               </Link>
               <Link href="/auth?signup=true" className="auth-btn sign-up-btn">
-                Sign Up
+                {t('signUp')}
               </Link>
             </div>
           )}

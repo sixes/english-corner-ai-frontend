@@ -1,0 +1,188 @@
+{
+  "header": {
+    "logo": "Forever English Corner",
+    "signIn": "Login",
+    "signUp": "Join",
+    "signOut": "Logout"
+  },
+  "navigation": {
+    "sessions": "📅 Sessions",
+    "whatWeOffer": "🎯 What We Offer",
+    "location": "📍 Location",
+    "community": "🌍 Community",
+    "join": "🚀 How to Join",
+    "whyChoose": "🌟 Why Choose Us",
+    "founders": "👥 Founders",
+    "alternatives": "🌐 Alternatives",
+    "faq": "🤖 Questions?"
+  },
+  "home": {
+    "title": "Forever English Corner",
+    "subtitle": "Shenzhen's English practice community since 2017",
+    "loadingSessions": "Loading sessions...",
+    "sections": {
+      "whatWeOffer": {
+        "title": "🎯 What We Offer",
+        "selfIntro": {
+          "title": "Self-Introduction Practice",
+          "desc": "30 minutes of structured speaking practice to build confidence"
+        },
+        "games": {
+          "title": "Interactive Games",
+          "desc": "\"One Truth and a Lie\" adapted from Two Truths and a Lie"
+        },
+        "topics": {
+          "title": "Topic Discussions",
+          "desc": "Weekly themed conversations on diverse subjects"
+        },
+        "cultural": {
+          "title": "Cultural Exchange",
+          "desc": "Meet people from around the world and share experiences"
+        }
+      },
+      "location": {
+        "title": "📍 Location & Schedule",
+        "weekly": {
+          "title": "Weekly Sessions",
+          "frequency": "Once per week",
+          "days": "Either Wednesday OR Friday",
+          "time": "19:30 - 22:00 (2.5 hours)",
+          "free": "Always Free to Join!"
+        },
+        "wednesday": {
+          "title": "Wednesday Venue",
+          "name": "Starbucks (联通大厦店)",
+          "landmark": "Near Futian Station",
+          "details": [
+            "Metro Lines 2, 3, and 11 intersection",
+            "Central business district location"
+          ]
+        },
+        "friday": {
+          "title": "Friday Venue",
+          "name": "Starbucks (深圳星河苏活购物公园店)",
+          "location": "Xinghе COCOPARK Shopping Mall",
+          "details": [
+            "Check WeChat group for weekly updates",
+            "Venue may occasionally change"
+          ]
+        },
+        "note": "📢 Check our WeChat group for the exact day and venue each week"
+      },
+      "community": {
+        "title": "👥 Our International Community",
+        "intro": "Join our diverse community with members from around the world:"
+      },
+      "join": {
+        "title": "🚀 How to Join",
+        "step1": {
+          "title": "Follow WeChat Official Account",
+          "desc": "Search for: "
+        },
+        "step2": {
+          "title": "Add Volunteer Contact",
+          "desc": "Scan the QR code to add our volunteer"
+        },
+        "step3": {
+          "title": "Send Self-Introduction",
+          "desc": "Record a 1-minute voice message introducing yourself"
+        },
+        "step4": {
+          "title": "Get Invited",
+          "desc": "Receive invitation to \"Language Exchange 2\" WeChat group"
+        },
+        "step5": {
+          "title": "Join Us!",
+          "desc": "Read the group notice and come to our next session"
+        },
+        "requirements": {
+          "title": "Requirements",
+          "list": [
+            "Basic English communication skills",
+            "Age 18+ (we've had members over 80!)",
+            "Respectful and friendly attitude",
+            "Willingness to practice and learn"
+          ]
+        }
+      },
+      "whyChoose": {
+        "title": "🌟 Why Choose Forever English Corner?",
+        "established": {
+          "title": "🕰️ Established Community",
+          "desc": "Running strong since 2017 with consistent quality"
+        },
+        "international": {
+          "title": "🌍 International Environment",
+          "desc": "Practice with native speakers and global learners"
+        },
+        "free": {
+          "title": "💰 Completely Free",
+          "desc": "No fees, no hidden costs - just bring yourself!"
+        },
+        "location": {
+          "title": "📍 Prime Location",
+          "desc": "Easy to reach via multiple subway lines"
+        },
+        "engaging": {
+          "title": "🎭 Engaging Activities",
+          "desc": "Structured games and discussions keep it fun"
+        },
+        "supportive": {
+          "title": "🤝 Supportive Atmosphere",
+          "desc": "Welcoming environment for all skill levels"
+        }
+      },
+      "founders": {
+        "title": "👥 About Our Founders",
+        "eric": {
+          "title": "Uncle Eric - The Visionary",
+          "desc1": "Forever English Corner was founded by ",
+          "desc2": ", a passionate and dedicated enthusiast who has been running these gatherings since ",
+          "desc3": ". Even during the challenging COVID-19 pandemic, Uncle Eric never suspended these events—demonstrating unwavering commitment to the community. It was during this period that ",
+          "desc4": " joined the gatherings for the first time!"
+        },
+        "tony": {
+          "title": "Tony - The Organizer & Builder",
+          "desc1": "Due to Uncle Eric's busy schedule, ",
+          "desc2": " now takes charge of organizing our gatherings. Tony is a seasoned software engineer with extensive experience in the gaming and financial sectors. He built this website to make it easier for everyone to join us, and is currently developing a sophisticated financial website for investors. With Tony's tech expertise and passion, we're bringing Forever English Corner into the digital age! 🚀"
+        },
+        "daniel": {
+          "title": "Daniel - The Mystery Organizer",
+          "desc": "We'd love to tell you more about **Daniel**, who ran our gatherings before Tony joined! However, Tony has never met him in person, so we don't have much information to share. **If you know Daniel or have stories about him, we'd be thrilled to hear from you!** Your insights would help us complete this part of our community's history. Reach out through our chat or WeChat!"
+        }
+      },
+      "alternatives": {
+        "title": "🌐 Not Quite Ready? Check These Out!",
+        "intro": "If you don't currently meet our English requirements, don't worry! We have some wonderful alternative English corners you should check out:",
+        "evergreen": {
+          "title": "📱 Evergreen English Corner",
+          "desc": "A great option for different levels of English learners.",
+          "contact": "WeChat Official Account:"
+        },
+        "trivial": {
+          "title": "🎯 Trivial English Club",
+          "desc": "Another fantastic community to explore and practice with.",
+          "contact": "Find it on:"
+        },
+        "note": "💡 We'll have you meeting our requirements in no time! Feel free to ask our AI assistant for tips on improving your English skills."
+      },
+      "faq": {
+        "title": "🤖 Still Have Questions?",
+        "text": "Our AI assistant is here to help! Ask about session schedules, topics, location details, or any other questions you might have about Forever English Corner.",
+        "button": "Chat with AI Assistant"
+      }
+    }
+  },
+  "countries": {
+    "Germany": "Germany",
+    "Australia": "Australia",
+    "Mongolia": "Mongolia",
+    "South Korea": "South Korea",
+    "Hong Kong": "Hong Kong",
+    "Taiwan": "Taiwan",
+    "United Kingdom": "United Kingdom",
+    "United States": "United States",
+    "Russia": "Russia",
+    "China": "China"
+  }
+}
