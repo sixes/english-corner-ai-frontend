@@ -144,10 +144,11 @@
 .about-content {
   max-width: 1200px;
   margin: 0 auto;
+  padding-top: 80px;
 }
 
 .carousel-container {
-  margin-top: 130px;
+  margin-top: 0;
   margin-bottom: 30px;
 }
 
@@ -537,6 +538,10 @@
   .about-page {
     padding: 0px 10px 10px 10px;
   }
+
+  .about-content {
+    padding-top: 70px;
+  }
   
   .about-header {
     padding: 50px 15px 20px 15px;
@@ -617,6 +622,6 @@
   }
 
   .carousel-container {
-    margin-top: 100px;
+    margin-top: 0;
   }
 }

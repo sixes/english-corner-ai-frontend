@@ -14,7 +14,6 @@ export default function EmblaCarousel({ slides }) {
     [Autoplay({ delay: 4000, stopOnInteraction: true })]
   )
   const [selectedIndex, setSelectedIndex] = useState(0)
-  const [loadedImages, setLoadedImages] = useState(new Set([0]))
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
@@ -33,16 +32,8 @@ export default function EmblaCarousel({ slides }) {
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return
-    const index = emblaApi.selectedScrollSnap()
-    setSelectedIndex(index)
-    
-    // Load adjacent images for smooth transitions
-    const toLoad = new Set(loadedImages)
-    toLoad.add(index)
-    if (index > 0) toLoad.add(index - 1)
-    if (index < slides.length - 1) toLoad.add(index + 1)
-    setLoadedImages(toLoad)
-  }, [emblaApi, slides.length, loadedImages])
+    setSelectedIndex(emblaApi.selectedScrollSnap())
+  }, [emblaApi])
 
   useEffect(() => {
     if (!emblaApi) return
@@ -62,16 +53,12 @@ export default function EmblaCarousel({ slides }) {
         <div className="embla__container">
           {slides.map((src, index) => (
             <div className="embla__slide" key={index}>
-              {loadedImages.has(index) ? (
-                <img
-                  src={src}
-                  alt={`English Corner ${index + 1}`}
-                  className="embla__slide__img"
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                />
-              ) : (
-                <div className="embla__slide__placeholder" />
-              )}
+              <img
+                src={src}
+                alt={`English Corner ${index + 1}`}
+                className="embla__slide__img"
+                loading={index === 0 ? 'eager' : 'lazy'}
+              />
             </div>
           ))}
         </div>

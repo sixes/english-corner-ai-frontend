@@ -20,13 +20,13 @@ export default function Home() {
   const tCountries = useTranslations('countries');
 
   const photos = [
-    '/images/gallery/photo1.svg',
-    '/images/gallery/photo2.svg',
-    '/images/gallery/photo3.svg',
-    '/images/gallery/photo4.svg',
-    '/images/gallery/photo5.svg',
-    '/images/gallery/photo6.svg',
-    '/images/gallery/photo7.svg',
+    '/images/gallery/1.jpg',
+    '/images/gallery/2.jpg',
+    '/images/gallery/3.jpg',
+    '/images/gallery/4.jpg',
+    '/images/gallery/5.jpg',
+    '/images/gallery/6.jpg',
+    '/images/gallery/7.jpg',
   ];
 
   return (

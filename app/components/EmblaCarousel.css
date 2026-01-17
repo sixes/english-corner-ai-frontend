@@ -26,13 +26,14 @@
   display: block;
   width: 100%;
   height: auto;
+  aspect-ratio: 4/3;
   border-radius: 10px;
   object-fit: cover;
 }
 
 .embla__slide__placeholder {
   width: 100%;
-  padding-bottom: 75%;
+  aspect-ratio: 4/3;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
