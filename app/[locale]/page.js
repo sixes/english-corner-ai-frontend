@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Link } from '../../lib/navigation';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
@@ -8,6 +8,7 @@ import '../About.css';
 import ChatWidget from '../components/ChatWidget';
 import Header from '../components/Header';
 import Navigation from '../components/Navigation';
+import EmblaCarousel from '../components/EmblaCarousel';
 
 const Sessions = dynamic(() => import('../components/Sessions'), {
   ssr: false,
@@ -18,18 +19,26 @@ export default function Home() {
   const t = useTranslations('home');
   const tCountries = useTranslations('countries');
 
+  const photos = [
+    '/images/gallery/photo1.svg',
+    '/images/gallery/photo2.svg',
+    '/images/gallery/photo3.svg',
+    '/images/gallery/photo4.svg',
+    '/images/gallery/photo5.svg',
+    '/images/gallery/photo6.svg',
+    '/images/gallery/photo7.svg',
+  ];
+
   return (
     <div className="about-page">
       <Header />
       <Navigation />
-      <div className="about-header">
-        <h1>{t('title')}</h1>
-        <p className="about-subtitle">
-          {t('subtitle')}
-        </p>
-      </div>
-
+      
       <div className="about-content">
+        <div className="carousel-container">
+          <EmblaCarousel slides={photos} />
+        </div>
+
         {/* Sessions Section - First */}
         <div id="sessions">
           <Sessions />

@@ -1,0 +1,127 @@
+.embla {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.embla__viewport {
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.embla__container {
+  display: flex;
+  touch-action: pan-y pinch-zoom;
+  margin-left: -1rem;
+}
+
+.embla__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  padding-left: 1rem;
+}
+
+.embla__slide__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.embla__slide__placeholder {
+  width: 100%;
+  padding-bottom: 75%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 10px;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.embla__prev,
+.embla__next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  font-size: 3rem;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+.embla__prev:hover,
+.embla__next:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.embla__prev {
+  left: 10px;
+}
+
+.embla__next {
+  right: 10px;
+}
+
+.embla__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+.embla__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #d1d5db;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.embla__dot:hover {
+  background: #9ca3af;
+  transform: scale(1.2);
+}
+
+.embla__dot--selected {
+  background: #4f46e5;
+  transform: scale(1.3);
+}
+
+@media (max-width: 768px) {
+  .embla__prev,
+  .embla__next {
+    width: 40px;
+    height: 40px;
+    font-size: 2rem;
+  }
+  
+  .embla__prev {
+    left: 5px;
+  }
+  
+  .embla__next {
+    right: 5px;
+  }
+}

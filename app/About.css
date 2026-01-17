@@ -146,6 +146,11 @@
   margin: 0 auto;
 }
 
+.carousel-container {
+  margin-top: 130px;
+  margin-bottom: 30px;
+}
+
 .about-section {
   background: white;
   margin-bottom: 30px;
@@ -609,5 +614,9 @@
 
   .alternatives-note {
     font-size: 0.9rem;
+  }
+
+  .carousel-container {
+    margin-top: 100px;
   }
 }
