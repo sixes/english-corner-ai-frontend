@@ -9,6 +9,7 @@ import ChatWidget from '../components/ChatWidget';
 import Header from '../components/Header';
 import Navigation from '../components/Navigation';
 import EmblaCarousel from '../components/EmblaCarousel';
+import QuoteSection from '../components/QuoteSection';
 
 const Sessions = dynamic(() => import('../components/Sessions'), {
   ssr: false,
@@ -38,6 +39,9 @@ export default function Home() {
         <div className="carousel-container">
           <EmblaCarousel slides={photos} />
         </div>
+
+        {/* Quote Section */}
+        <QuoteSection />
 
         {/* Sessions Section - First */}
         <div id="sessions">
