@@ -10,6 +10,7 @@ import Header from '../components/Header';
 import Navigation from '../components/Navigation';
 import EmblaCarousel from '../components/EmblaCarousel';
 import QuoteSection from '../components/QuoteSection';
+import NewsSection from '../components/NewsSection';
 
 const Sessions = dynamic(() => import('../components/Sessions'), {
   ssr: false,
@@ -42,6 +43,9 @@ export default function Home() {
 
         {/* Quote Section */}
         <QuoteSection />
+
+        {/* News Section */}
+        <NewsSection />
 
         {/* Sessions Section - First */}
         <div id="sessions">
